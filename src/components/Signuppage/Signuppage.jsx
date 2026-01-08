@@ -1,8 +1,12 @@
 import React, { useState } from 'react';
 import { LayoutGrid, Eye, EyeOff, Mail, Lock } from 'lucide-react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 const Signuppage = () => {
+    // Navigate function initialization
+    const navigate = useNavigate();
+
     // Form states
     const [role, setRole] = useState('Internship Seeker');
     const [firstName, setFirstName] = useState('');
@@ -18,16 +22,19 @@ const Signuppage = () => {
             const response = await axios.post('https://localhost:7118/api/Auth/register', {
                 email: email,
                 password: password,
-                role: role
+                role: role,
+                firstName: firstName, // සාමාන්‍යයෙන් register වලදී මේවාත් යවනවා
+                lastName: lastName
             });
             alert("Account created successfully!");
+            navigate('/signin'); // සාර්ථක වූ පසු signin පිටුවට යොමු කිරීම
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || "Registration failed"));
         }
     };
 
     return (
-        // Main background wrapper - centers the card on the screen
+        // Main background wrapper
         <div className="flex items-center justify-center min-h-screen p-4 font-sans bg-slate-200">
             
             {/* The Main "Card" Container */}
@@ -66,7 +73,12 @@ const Signuppage = () => {
                 <div className="flex-1 p-10 overflow-y-auto bg-white lg:p-14">
                     <div className="mb-6 text-right">
                         <span className="text-sm text-gray-400">Already a member? </span>
-                        <button className="text-sm font-semibold text-blue-600 hover:underline">Sign In</button>
+                        <button 
+                            className="text-sm font-semibold text-blue-600 hover:underline" 
+                            onClick={() => navigate('/signin')}
+                        >
+                            Sign In
+                        </button>
                     </div>
 
                     <h2 className="mb-2 text-3xl font-bold text-gray-900">Create an account</h2>
