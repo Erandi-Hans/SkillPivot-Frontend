@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, Lock, EyeOff, Eye } from 'lucide-react'; // Eye icon එකත් එකතු කර ඇත
 import Signuppage from '../Signuppage/Signuppage.jsx';
-import studentdashboard from 'src/components/Studentmaindashboard/Navbar/Navbar.jsx';
+import studentdashboard from '../Studentmaindashboard/Dashbord/Dashbord.jsx';
 
 const SignIn = () => {
   const [searchParams] = useSearchParams();
@@ -34,7 +34,7 @@ const SignIn = () => {
       
     } else {
       // Internship Seeker සඳහා Student Dashboard එකට යොමු වේ
-     // navigate('/studentdashboard');
+      navigate('/student-dashboard');
       
     }
   };
@@ -129,6 +129,7 @@ const SignIn = () => {
           {/* Dynamic Login Button */}
           <button 
             type="submit" 
+            onClick={() => navigate('/ studentdashboard')} 
             className="w-full p-4 text-lg font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98] shadow-blue-100"
           >
             Sign in as {selectedRole.split(' ')[0]}
