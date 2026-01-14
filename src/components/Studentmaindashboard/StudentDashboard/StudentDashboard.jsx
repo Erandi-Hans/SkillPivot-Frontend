@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from '../Studentmaindashboard/Navbar/Navbar'; // Navbar එක import කරන්න
+import Navbar from '../Navbar/Navbar.jsx'; // Navbar එක import කරන්න
 
 const StudentDashboard = () => {
   return (

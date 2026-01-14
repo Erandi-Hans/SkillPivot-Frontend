@@ -4,6 +4,9 @@ import './index.css';
 import RoleSelection from './components/RoleSelectionPage/RoleSelection';
 import SignIn from './components/SignInPage/SignIn';
 import Signuppage from './components/Signuppage/Signuppage';
+import ForgotPassword from './components/Forgetpassword/Forgetpassword';
+import EnterOTP from './components/EnterOTP/EnterOTP';
+import StudentDashboard from './components/Studentmaindashboard/StudentDashboard/StudentDashboard';
 
 function App() {
   return (
@@ -16,9 +19,17 @@ function App() {
         <Route path="/signin" element={<SignIn />} />
 
           {/* Sign up Page */}
-        <Route path="/signup" element={<Signuppage/>} />
-        
+        <Route path="/signup" element={<Signuppage />} />
        
+        {/* Forget password page */}
+      <Route path="/forget-password" element={<ForgotPassword />} />
+
+      {/* Forget password page */}
+      <Route path="/enter-otp" element={<EnterOTP />} />
+
+      {/* Student dashboard */}
+      <Route path="/student-dashboard" element={<StudentDashboard />} />
+      
 
       </Routes>
     </Router>

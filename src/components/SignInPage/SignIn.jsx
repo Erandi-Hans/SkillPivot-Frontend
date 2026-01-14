@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react'; 
 import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Mail, Lock, EyeOff, Eye } from 'lucide-react'; // Eye icon එකත් එකතු කර ඇත
+import { Mail, Lock, EyeOff, Eye } from 'lucide-react'; 
 import Signuppage from '../Signuppage/Signuppage.jsx';
-import studentdashboard from '../Studentmaindashboard/Dashbord/Dashbord.jsx';
+import Studentdashboard from '../Studentmaindashboard/StudentDashboard/StudentDashboard.jsx';
+import ForgotPassword from '../Forgetpassword/Forgetpassword.jsx';
+
 
 const SignIn = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-  // URL එකෙන් Role එක ලබා ගැනීම හෝ default ලෙස 'Internship Seeker' සැකසීම
+
   const roleFromUrl = searchParams.get('role') || 'Internship Seeker';
   const [selectedRole, setSelectedRole] = useState(roleFromUrl);
-  const [showPassword, setShowPassword] = useState(false); // Password පෙන්වීමට/සැඟවීමට
+  const [showPassword, setShowPassword] = useState(false); 
 
-  // URL එකේ role එක වෙනස් වන විට state එක update කිරීම
+ 
   useEffect(() => {
     const urlRole = searchParams.get('role');
     if (urlRole) {
@@ -21,21 +23,18 @@ const SignIn = () => {
     }
   }, [searchParams]);
 
-  // Sign In බොත්තම එබූ විට ක්‍රියාත්මක වන ප්‍රධාන Function එක
+  
   const handleSignIn = (e) => {
     e.preventDefault(); 
     console.log("Signing in as:", selectedRole);
 
-    // භූමිකාව (Role) අනුව අදාළ Dashboard එකට යොමු කිරීම
     if (selectedRole === 'Admin') {
       navigate('/admin-dashboard');
     } else if (selectedRole === 'Company') {
       navigate('/company-dashboard');
       
     } else {
-      // Internship Seeker සඳහා Student Dashboard එකට යොමු වේ
       navigate('/student-dashboard');
-      
     }
   };
 
@@ -119,9 +118,10 @@ const SignIn = () => {
             </label>
             <button 
               type="button" 
-              onClick={() => navigate('/forgot-password')} 
+              onClick={() => navigate('/forget-password')} 
               className="text-sm font-bold text-blue-600 transition-colors hover:text-blue-700 hover:underline"
             >
+              
               Forgot password?
             </button>
           </div>
@@ -129,7 +129,7 @@ const SignIn = () => {
           {/* Dynamic Login Button */}
           <button 
             type="submit" 
-            onClick={() => navigate('/ studentdashboard')} 
+            onClick={() => navigate('/student-dashboard')} 
             className="w-full p-4 text-lg font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98] shadow-blue-100"
           >
             Sign in as {selectedRole.split(' ')[0]}

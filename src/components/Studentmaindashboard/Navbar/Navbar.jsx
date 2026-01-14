@@ -15,6 +15,7 @@ const Navbar = () => {
     <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
       {/* වම් පස - Logo */}
       <div className="flex items-center gap-2">
+        
         <div className="p-2 bg-blue-600 rounded-lg">
           <span className="text-xl font-bold text-white">⚡</span>
         </div>
