@@ -7,6 +7,7 @@ import Signuppage from './components/Signuppage/Signuppage';
 import ForgotPassword from './components/Forgetpassword/Forgetpassword';
 import EnterOTP from './components/EnterOTP/EnterOTP';
 import StudentDashboard from './components/Studentmaindashboard/StudentDashboard/StudentDashboard';
+import Cvgenerate from './components/Studentmaindashboard/Cvgenerate/Cvgenerate';
 
 function App() {
   return (
@@ -29,6 +30,9 @@ function App() {
 
       {/* Student dashboard */}
       <Route path="/student-dashboard" element={<StudentDashboard />} />
+
+      {/* Generate cv*/}
+      <Route path="/cv-generate" element={<Cvgenerate />} />
       
 
       </Routes>

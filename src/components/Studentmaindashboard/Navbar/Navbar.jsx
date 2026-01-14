@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileUser, 
@@ -11,21 +12,28 @@ import {
 
 const Navbar = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
+  const navigate = useNavigate();
 
-  // Navigation links සමඟ Lucide components
+  // 1. සෑම link එකකටම path එකක් ලබා දී ඇත
   const navLinks = [
-    { name: 'Dashboard', icon: LayoutDashboard },
-    { name: 'Generate CV', icon: FileUser },
-    { name: 'Find Jobs', icon: Search },
-    { name: 'Edit Profile', icon: UserRoundPen },
-    { name: 'Manage Applications', icon: ClipboardCheck },
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { name: 'Generate CV', icon: FileUser, path: '/cv-generate' },
+    { name: 'Find Jobs', icon: Search, path: '/find-jobs' },
+    { name: 'Edit Profile', icon: UserRoundPen, path: '/edit-profile' },
+    { name: 'Manage Applications', icon: ClipboardCheck, path: '/applications' },
   ];
 
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
+    <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-sm">
       
       {/* වම් පස - Logo */}
-      <div className="flex items-center gap-2">
+      <div 
+        className="flex items-center gap-2 cursor-pointer" 
+        onClick={() => {
+          setActiveTab('Dashboard');
+          navigate('/');
+        }}
+      >
         <div className="p-2 text-white bg-blue-600 rounded-lg">
           <Zap size={20} fill="currentColor" />
         </div>
@@ -37,18 +45,23 @@ const Navbar = () => {
       {/* මැද කොටස - Navigation Links */}
       <div className="items-center hidden gap-6 lg:flex">
         {navLinks.map((link) => {
-          const Icon = link.icon; // Icon එක variable එකකට ගැනීම
+          const Icon = link.icon;
+          const isActive = activeTab === link.name;
+          
           return (
             <button
               key={link.name}
-              onClick={() => setActiveTab(link.name)}
+              onClick={() => {
+                setActiveTab(link.name); // Button එක highlight කිරීමට
+                navigate(link.path);     // ඇත්තටම අදාළ පිටුවට යාමට
+              }}
               className={`flex items-center gap-2 text-sm font-medium transition-all pb-1 border-b-2 ${
-                activeTab === link.name 
-                  ? 'border-blue-600 text-blue-600' 
+                isActive 
+                  ? 'border-blue-600 text-blue-600 font-semibold' 
                   : 'border-transparent text-gray-500 hover:text-blue-600'
               }`}
             >
-              <Icon size={18} strokeWidth={activeTab === link.name ? 2.5 : 2} />
+              <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
               <span>{link.name}</span>
             </button>
           );
@@ -63,13 +76,13 @@ const Navbar = () => {
           <input
             type="text"
             placeholder="Search internships..."
-            className="w-64 px-4 py-2 pl-10 text-sm bg-gray-100 border-none rounded-full focus:ring-2 focus:ring-blue-500"
+            className="w-64 px-4 py-2 pl-10 text-sm transition-all bg-gray-100 border border-transparent rounded-full outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
           />
           <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         </div>
 
         {/* Notifications */}
-        <button className="relative p-2 text-gray-500 rounded-full hover:bg-gray-100">
+        <button className="relative p-2 text-gray-500 transition-colors rounded-full hover:bg-gray-100">
           <Bell size={20} />
           <span className="absolute w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full top-2 right-2"></span>
         </button>
@@ -83,7 +96,7 @@ const Navbar = () => {
           <img
             src="https://via.placeholder.com/40"
             alt="Profile"
-            className="object-cover w-10 h-10 border border-blue-100 rounded-full"
+            className="object-cover w-10 h-10 transition-all border border-blue-100 rounded-full cursor-pointer hover:border-blue-500"
           />
         </div>
       </div>
