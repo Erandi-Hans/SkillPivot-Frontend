@@ -8,6 +8,9 @@ import ForgotPassword from './components/Forgetpassword/Forgetpassword';
 import EnterOTP from './components/EnterOTP/EnterOTP';
 import StudentDashboard from './components/Studentmaindashboard/StudentDashboard/StudentDashboard';
 import Cvgenerate from './components/Studentmaindashboard/Cvgenerate/Cvgenerate';
+import Editprofile from './components/Studentmaindashboard/Editprofile/Editprofile';
+import FindJob from './components/Studentmaindashboard/FindJob/FindJob';
+import Manageapplication from './components/Studentmaindashboard/Manageapplication/Manageapplication';
 
 function App() {
   return (
@@ -33,6 +36,15 @@ function App() {
 
       {/* Generate cv*/}
       <Route path="/cv-generate" element={<Cvgenerate />} />
+
+       {/* Edit profile*/}
+      <Route path="/edit-profile" element={<Editprofile />} />
+
+       {/* Find jobs*/}
+      <Route path="/find-jobs" element={<FindJob />} />
+
+       {/* Manage applications*/}
+      <Route path="/applications" element={<Manageapplication />} />
       
 
       </Routes>
