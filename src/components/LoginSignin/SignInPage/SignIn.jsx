@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, Lock, EyeOff, Eye } from 'lucide-react'; 
 import Signuppage from '../Signuppage/Signuppage.jsx';
-import Studentdashboard from '../Studentmaindashboard/StudentDashboard/StudentDashboard.jsx';
+import Studentdashboard from '../../Studentmaindashboard/StudentDashboard/StudentDashboard.jsx';
 import ForgotPassword from '../Forgetpassword/Forgetpassword.jsx';
 
 

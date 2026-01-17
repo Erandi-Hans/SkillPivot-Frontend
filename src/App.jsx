@@ -1,11 +1,11 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './index.css';
-import RoleSelection from './components/RoleSelectionPage/RoleSelection';
-import SignIn from './components/SignInPage/SignIn';
-import Signuppage from './components/Signuppage/Signuppage';
-import ForgotPassword from './components/Forgetpassword/Forgetpassword';
-import EnterOTP from './components/EnterOTP/EnterOTP';
+import RoleSelection from './components/LoginSignin/RoleSelectionPage/RoleSelection';
+import SignIn from './components/LoginSignin/SignInPage/SignIn';
+import Signuppage from './components/LoginSignin/Signuppage/Signuppage';
+import ForgotPassword from './components/LoginSignin/Forgetpassword/Forgetpassword';
+import EnterOTP from './components/LoginSignin/EnterOTP/EnterOTP';
 import StudentDashboard from './components/Studentmaindashboard/StudentDashboard/StudentDashboard';
 import Cvgenerate from './components/Studentmaindashboard/Cvgenerate/Cvgenerate';
 import Editprofile from './components/Studentmaindashboard/Editprofile/Editprofile';
