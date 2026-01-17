@@ -11,6 +11,7 @@ import Cvgenerate from './components/Studentmaindashboard/Cvgenerate/Cvgenerate'
 import Editprofile from './components/Studentmaindashboard/Editprofile/Editprofile';
 import FindJob from './components/Studentmaindashboard/FindJob/FindJob';
 import Manageapplication from './components/Studentmaindashboard/Manageapplication/Manageapplication';
+import AccountPreferences from './components/Studentmaindashboard/Editprofile/Tabs/AccountPreferences/AccountPreferences';
 
 function App() {
   return (
@@ -45,6 +46,9 @@ function App() {
 
        {/* Manage applications*/}
       <Route path="/applications" element={<Manageapplication />} />
+
+          {/* Account Preferences*/}
+      <Route path="/accountPreferences" element={<AccountPreferences />} />
       
 
       </Routes>
