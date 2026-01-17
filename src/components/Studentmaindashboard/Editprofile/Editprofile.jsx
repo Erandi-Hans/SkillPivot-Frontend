@@ -1,8 +1,10 @@
 import React, { useState, useRef } from 'react';
-import AccountPreferences from '../Editprofile/Tabs/AccountPreferences/AccountPreferences.jsx';
+// Folder structure එකට අනුව නිවැරදි import paths
+import AccountPreferences from './Tabs/AccountPreferences/AccountPreferences.jsx';
+import Signsecurity from './Tabs/Signsecurity/Signsecurity.jsx';
 
 const EditProfile = () => {
-
+  // මුලින්ම පෙන්වන්නේ හිස් සුදු පිටුවක් බැවින් null ලෙස තබා ඇත
   const [activeTab, setActiveTab] = useState(null); 
   const [profileImg, setProfileImg] = useState(null); 
   const fileInputRef = useRef(null); 
@@ -22,6 +24,7 @@ const EditProfile = () => {
   return (
     <div className="min-h-screen w-full bg-[#f3f2f0] flex items-center justify-center p-4 md:p-10">
       
+      {/* Main Container */}
       <div className="flex w-full max-w-[1100px] h-[90vh] bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200">
         
         {/* Sidebar Section */}
@@ -61,29 +64,39 @@ const EditProfile = () => {
         <main className="flex-1 overflow-y-auto bg-white">
           <div className="w-full h-full">
             
-            {/* Conditional Rendering Logic */}
-            {activeTab === 'Account preferences' ? (
+            {/* 1. Account Preferences Rendering */}
+            {activeTab === 'Account preferences' && (
               <div className="min-h-full p-4 md:p-8 bg-gray-50">
                 <AccountPreferences />
               </div>
-            ) : activeTab === 'Sign in & security' ? (
-              <div className="p-8">
-                 <h2 className="text-xl font-bold">Sign in & security content</h2>
-                 {/* Security component import */}
+            )}
+
+            {/* 2. Sign in & Security Rendering */}
+            {activeTab === 'Sign in & security' && (
+              <div className="min-h-full p-4 md:p-8 bg-gray-50">
+                 <Signsecurity />
               </div>
-            ) : (
-             
+            )}
+
+            {/* 3. Default View (හිස් පිටුව) */}
+            {!activeTab && (
               <div className="flex items-center justify-center w-full h-full bg-white">
                 <div className="text-center">
-                  <p className="italic font-medium text-gray-400"></p>
+                  <p className="italic font-medium text-gray-400">Please select an option from the sidebar</p>
                 </div>
               </div>
+            )}
+
+            {/* අනෙකුත් Tabs සඳහා මෙලෙසම Logic එකතු කළ හැක */}
+            {activeTab === 'Visibility' && (
+              <div className="p-8 text-center text-gray-500">Visibility Content Coming Soon...</div>
             )}
 
           </div>
         </main>
       </div>
 
+      {/* Profile Image Input */}
       <input 
         type="file" 
         ref={fileInputRef} 

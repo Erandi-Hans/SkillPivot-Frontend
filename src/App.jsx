@@ -12,6 +12,7 @@ import Editprofile from './components/Studentmaindashboard/Editprofile/Editprofi
 import FindJob from './components/Studentmaindashboard/FindJob/FindJob';
 import Manageapplication from './components/Studentmaindashboard/Manageapplication/Manageapplication';
 import AccountPreferences from './components/Studentmaindashboard/Editprofile/Tabs/AccountPreferences/AccountPreferences';
+import Signsecurity from './components/Studentmaindashboard/Editprofile/Tabs/Signsecurity/Signsecurity';
 
 function App() {
   return (
@@ -50,6 +51,9 @@ function App() {
           {/* Account Preferences*/}
       <Route path="/accountPreferences" element={<AccountPreferences />} />
       
+
+      {/* Sign & security*/}
+      <Route path="/signsecurity" element={<Signsecurity/>} />
 
       </Routes>
     </Router>
