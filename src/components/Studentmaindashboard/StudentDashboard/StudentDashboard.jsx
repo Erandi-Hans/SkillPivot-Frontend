@@ -16,13 +16,12 @@ import {
 const StudentDashboard = () => {
   return (
     <div className="min-h-screen bg-[#F3F2EF] font-sans">
-      
-      {/* 1. Navbar Component එක භාවිතා කිරීම */}
+
       <Navbar />
 
       <main className="grid max-w-6xl grid-cols-12 gap-5 px-4 mx-auto mt-6">
         
-        {/* වම් පස - Profile Card */}
+     
         <div className="col-span-12 space-y-2 lg:col-span-3">
           <div className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
             <div className="h-14 bg-[#A0B4B7]"></div>
@@ -54,10 +53,10 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* මැද - Feed (ප්‍රධාන කොටස) */}
+     
         <div className="col-span-12 space-y-3 lg:col-span-6">
           
-          {/* Post එකක් ආරම්භ කරන කොටස */}
+       
           <div className="p-4 bg-white border border-gray-200 shadow-sm rounded-xl">
             <div className="flex gap-3">
               <div className="w-12 h-12 overflow-hidden bg-gray-200 rounded-full shrink-0">
@@ -125,7 +124,7 @@ const StudentDashboard = () => {
           </div>
         </div>
 
-        {/* දකුණු පස - Recommendations */}
+       
         <div className="col-span-12 space-y-3 lg:col-span-3">
           <div className="p-3 bg-white border border-gray-200 shadow-sm rounded-xl">
             <div className="flex items-center justify-between mb-4">

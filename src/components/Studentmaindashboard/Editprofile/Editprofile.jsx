@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import AccountPreferences from '../Editprofile/Tabs/AccountPreferences/AccountPreferences.jsx';
 
 const EditProfile = () => {
-  // මුලින්ම කිසිදු Tab එකක් select වී නැති නිසා null ලෙස තබන්න
+
   const [activeTab, setActiveTab] = useState(null); 
   const [profileImg, setProfileImg] = useState(null); 
   const fileInputRef = useRef(null); 
@@ -69,10 +69,10 @@ const EditProfile = () => {
             ) : activeTab === 'Sign in & security' ? (
               <div className="p-8">
                  <h2 className="text-xl font-bold">Sign in & security content</h2>
-                 {/* Security component එක මෙතනට පසුව එක් කරන්න */}
+                 {/* Security component import */}
               </div>
             ) : (
-              // Default අවස්ථාවේදී පෙන්වන සම්පූර්ණ සුදු පිටුව (White Screen)
+             
               <div className="flex items-center justify-center w-full h-full bg-white">
                 <div className="text-center">
                   <p className="italic font-medium text-gray-400"></p>

@@ -23,11 +23,11 @@ const Signuppage = () => {
                 email: email,
                 password: password,
                 role: role,
-                firstName: firstName, // සාමාන්‍යයෙන් register වලදී මේවාත් යවනවා
+                firstName: firstName, 
                 lastName: lastName
             });
             alert("Account created successfully!");
-            navigate('/signin'); // සාර්ථක වූ පසු signin පිටුවට යොමු කිරීම
+            navigate('/signin'); 
         } catch (error) {
             alert("Error: " + (error.response?.data?.message || "Registration failed"));
         }

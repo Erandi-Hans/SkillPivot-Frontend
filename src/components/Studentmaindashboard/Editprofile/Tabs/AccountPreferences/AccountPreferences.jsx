@@ -1,6 +1,6 @@
 import React from 'react';
 
-// පොදු Row Component එකක් (වෙලාව ඉතිරි කර ගැනීමට)
+
 const SettingRow = ({ title, value, onClick }) => (
   <div 
     onClick={onClick}
@@ -22,7 +22,7 @@ const AccountPreferences = () => {
   return (
     <div className="max-w-2xl pb-10 mx-auto space-y-6">
       
-      {/* 1. Profile Information */}
+     
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile information</h2>
@@ -34,7 +34,7 @@ const AccountPreferences = () => {
         </div>
       </section>
 
-      {/* 2. Display Section */}
+   
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Display</h2>
@@ -42,7 +42,7 @@ const AccountPreferences = () => {
         </div>
       </section>
 
-      {/* 3. General Preferences Section */}
+     
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">General preferences</h2>
@@ -57,7 +57,7 @@ const AccountPreferences = () => {
         </div>
       </section>
 
-      {/* 4. Account Management (අමතර වැදගත් කොටසක්) */}
+      
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Account management</h2>
@@ -68,7 +68,7 @@ const AccountPreferences = () => {
         </div>
       </section>
 
-      {/* Footer Links (LinkedIn විලාසිතාවට) */}
+    
       <div className="flex flex-wrap justify-center gap-4 py-6 text-xs text-gray-500">
         <span>Help Center</span>
         <span>Privacy Policy</span>

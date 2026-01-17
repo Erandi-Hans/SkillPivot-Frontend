@@ -14,7 +14,7 @@ const Navbar = () => {
   const [activeTab, setActiveTab] = useState('Dashboard');
   const navigate = useNavigate();
 
-  // 1. සෑම link එකකටම path එකක් ලබා දී ඇත
+
   const navLinks = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { name: 'Generate CV', icon: FileUser, path: '/cv-generate' },
@@ -26,7 +26,7 @@ const Navbar = () => {
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-sm">
       
-      {/* වම් පස - Logo */}
+
       <div 
         className="flex items-center gap-2 cursor-pointer" 
         onClick={() => {
@@ -42,7 +42,7 @@ const Navbar = () => {
         </h1>
       </div>
 
-      {/* මැද කොටස - Navigation Links */}
+   
       <div className="items-center hidden gap-6 lg:flex">
         {navLinks.map((link) => {
           const Icon = link.icon;
@@ -52,8 +52,8 @@ const Navbar = () => {
             <button
               key={link.name}
               onClick={() => {
-                setActiveTab(link.name); // Button එක highlight කිරීමට
-                navigate(link.path);     // ඇත්තටම අදාළ පිටුවට යාමට
+                setActiveTab(link.name); 
+                navigate(link.path);    
               }}
               className={`flex items-center gap-2 text-sm font-medium transition-all pb-1 border-b-2 ${
                 isActive 
@@ -68,10 +68,10 @@ const Navbar = () => {
         })}
       </div>
 
-      {/* දකුණු පස - Search & Profile */}
+
       <div className="flex items-center gap-4">
         
-        {/* Search Bar */}
+     
         <div className="relative hidden md:block">
           <input
             type="text"

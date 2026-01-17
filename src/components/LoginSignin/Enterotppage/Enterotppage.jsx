@@ -7,7 +7,7 @@ const VerifyOTP = () => {
   const [timer, setTimer] = useState(29);
   const navigate = useNavigate();
 
-  // තත්පර 29 සිට පහළට ගණනය කරන Timer එක
+
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer(timer - 1), 1000);
@@ -15,7 +15,7 @@ const VerifyOTP = () => {
     }
   }, [timer]);
 
-  // OTP Input එක හැසිරවීම (Next box එකට ඉබේම මාරු වීම)
+
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
     setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
@@ -29,7 +29,7 @@ const VerifyOTP = () => {
     e.preventDefault();
     const finalOtp = otp.join("");
     console.log("Verifying OTP:", finalOtp);
-    // මෙතැනදී Backend එකට OTP එක යවා පරීක්ෂා කරන්න
+    
   };
 
   return (
