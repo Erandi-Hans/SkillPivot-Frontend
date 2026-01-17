@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-// Folder structure එකට අනුව නිවැරදි import paths
+
 import AccountPreferences from './Tabs/AccountPreferences/AccountPreferences.jsx';
 import Signsecurity from './Tabs/Signsecurity/Signsecurity.jsx';
+import VisibilitySettings from './Tabs/VisibilitySettings/VisibilitySettings.jsx';
 
 const EditProfile = () => {
-  // මුලින්ම පෙන්වන්නේ හිස් සුදු පිටුවක් බැවින් null ලෙස තබා ඇත
+  
   const [activeTab, setActiveTab] = useState(null); 
   const [profileImg, setProfileImg] = useState(null); 
   const fileInputRef = useRef(null); 
@@ -78,7 +79,14 @@ const EditProfile = () => {
               </div>
             )}
 
-            {/* 3. Default View (හිස් පිටුව) */}
+             {/* 3.  Visibility Settings */}
+            {activeTab === 'Visibility' && (
+              <div className="min-h-full p-4 md:p-8 bg-gray-50">
+                 <VisibilitySettings />
+              </div>
+            )}
+
+            {/* 3. Default View  */}
             {!activeTab && (
               <div className="flex items-center justify-center w-full h-full bg-white">
                 <div className="text-center">
@@ -87,7 +95,7 @@ const EditProfile = () => {
               </div>
             )}
 
-            {/* අනෙකුත් Tabs සඳහා මෙලෙසම Logic එකතු කළ හැක */}
+            {/*  */}
             {activeTab === 'Visibility' && (
               <div className="p-8 text-center text-gray-500">Visibility Content Coming Soon...</div>
             )}

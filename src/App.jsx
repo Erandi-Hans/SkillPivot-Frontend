@@ -13,6 +13,7 @@ import FindJob from './components/Studentmaindashboard/FindJob/FindJob';
 import Manageapplication from './components/Studentmaindashboard/Manageapplication/Manageapplication';
 import AccountPreferences from './components/Studentmaindashboard/Editprofile/Tabs/AccountPreferences/AccountPreferences';
 import Signsecurity from './components/Studentmaindashboard/Editprofile/Tabs/Signsecurity/Signsecurity';
+import VisibilitySettings from './components/Studentmaindashboard/Editprofile/Tabs/VisibilitySettings/VisibilitySettings';
 
 function App() {
   return (
@@ -54,6 +55,11 @@ function App() {
 
       {/* Sign & security*/}
       <Route path="/signsecurity" element={<Signsecurity/>} />
+
+      VisibilitySettings
+
+            {/* Visibility Settings*/}
+      <Route path="/visibilitySettings" element={<VisibilitySettings/>} />
 
       </Routes>
     </Router>
