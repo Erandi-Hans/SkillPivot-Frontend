@@ -14,6 +14,8 @@ import Manageapplication from './components/Studentmaindashboard/Manageapplicati
 import AccountPreferences from './components/Studentmaindashboard/Editprofile/Tabs/AccountPreferences/AccountPreferences';
 import Signsecurity from './components/Studentmaindashboard/Editprofile/Tabs/Signsecurity/Signsecurity';
 import VisibilitySettings from './components/Studentmaindashboard/Editprofile/Tabs/VisibilitySettings/VisibilitySettings';
+import DataPrivacy from './components/Studentmaindashboard/Editprofile/Tabs/DataPrivacy/DataPrivacy';
+import JobDiscovery from './components/Studentmaindashboard/Editprofile/Tabs/JobDiscover/JobDiscover';
 
 function App() {
   return (
@@ -60,6 +62,14 @@ function App() {
 
             {/* Visibility Settings*/}
       <Route path="/visibilitySettings" element={<VisibilitySettings/>} />
+
+          {/* DataPrivacy Settings*/}
+      <Route path="/dataPrivacy" element={<DataPrivacy/>} />
+
+         {/* JobDiscovery Settings*/}
+      <Route path="/jobDiscovery" element={<JobDiscovery/>} />
+
+      
 
       </Routes>
     </Router>

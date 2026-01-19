@@ -3,6 +3,7 @@ import React, { useState, useRef } from 'react';
 import AccountPreferences from './Tabs/AccountPreferences/AccountPreferences.jsx';
 import Signsecurity from './Tabs/Signsecurity/Signsecurity.jsx';
 import VisibilitySettings from './Tabs/VisibilitySettings/VisibilitySettings.jsx';
+import DataPrivacy from './Tabs/DataPrivacy/DataPrivacy.jsx';
 
 const EditProfile = () => {
   
@@ -86,7 +87,22 @@ const EditProfile = () => {
               </div>
             )}
 
-            {/* 3. Default View  */}
+           
+
+            {/* Data privacy */}
+            {activeTab === 'Data privacy' && (
+              <div className="p-8 text-center text-gray-500">
+              <DataPrivacy /> 
+              </div>
+            )}
+
+
+
+
+
+
+
+             {/* 3. Default View  */}
             {!activeTab && (
               <div className="flex items-center justify-center w-full h-full bg-white">
                 <div className="text-center">
@@ -95,10 +111,7 @@ const EditProfile = () => {
               </div>
             )}
 
-            {/*  */}
-            {activeTab === 'Visibility' && (
-              <div className="p-8 text-center text-gray-500">Visibility Content Coming Soon...</div>
-            )}
+            
 
           </div>
         </main>

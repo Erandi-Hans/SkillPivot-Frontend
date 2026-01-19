@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 
-// Moved SettingRow outside to follow best practices and avoid re-render issues
+// SettingRow Component
 const SettingRow = ({ id, title, value, children, openSection, toggleSection }) => (
   <div className="border-b border-gray-100 last:border-0">
     <div 
@@ -12,7 +12,6 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
         <p className="text-[15px] font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
           {title}
         </p>
-        {/* Show current value only when the section is closed */}
         {openSection !== id && value && (
           <p className="text-sm text-gray-500 mt-0.5">{value}</p>
         )}
@@ -22,7 +21,7 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
       </span>
     </div>
 
-    {/* Expandable Edit Window */}
+    {/* විවෘත වන කොටස */}
     {openSection === id && (
       <div className="p-5 my-2 border border-gray-100 rounded-lg bg-gray-50 animate-fadeIn">
         {children}
@@ -33,17 +32,30 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
 
 const AccountPreferences = () => {
   const [openSection, setOpenSection] = useState(null);
+  
+  // Form States
+  const [profileData, setProfileData] = useState({
+    firstName: '',
+    lastName: '',
+    location: '',
+    industry: ''
+  });
   const [darkMode, setDarkMode] = useState("Off");
   const [language, setLanguage] = useState("English");
 
-  // Toggle logic to open/close sections
   const toggleSection = (id) => {
     setOpenSection(openSection === id ? null : id);
   };
 
   const handleSave = () => {
-    // Add logic here to update database via API
+    // දත්ත Save කිරීමේ logic එක මෙතැනට ඇතුළත් කළ හැකිය
+    console.log("Saving data...", { profileData, darkMode, language });
     setOpenSection(null);
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
   return (
@@ -57,18 +69,59 @@ const AccountPreferences = () => {
             <SettingRow 
               id="name-loc" 
               title="Name, location, and industry" 
+              value={`${profileData.firstName} ${profileData.lastName}`}
               openSection={openSection} 
               toggleSection={toggleSection}
             >
               <div className="space-y-4">
                 <p className="text-sm text-gray-600">Update your basic profile identifiers.</p>
+                
+                {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
-                  <input type="text" placeholder="First Name" className="p-2 border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                  <input type="text" placeholder="Last Name" className="p-2 border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
+                  <input 
+                    name="firstName"
+                    type="text" 
+                    placeholder="First Name" 
+                    value={profileData.firstName}
+                    onChange={handleInputChange}
+                    className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
+                  />
+                  <input 
+                    name="lastName"
+                    type="text" 
+                    placeholder="Last Name" 
+                    value={profileData.lastName}
+                    onChange={handleInputChange}
+                    className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
+                  />
                 </div>
-                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700">Save</button>
+
+                {/* Location and Industry Fields - අලුතින් එක් කරන ලදී */}
+                <div className="grid grid-cols-2 gap-4">
+                  <input 
+                    name="location"
+                    type="text" 
+                    placeholder="Location (e.g. Colombo)" 
+                    value={profileData.location}
+                    onChange={handleInputChange}
+                    className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
+                  />
+                  <input 
+                    name="industry"
+                    type="text" 
+                    placeholder="Industry (e.g. Software)" 
+                    value={profileData.industry}
+                    onChange={handleInputChange}
+                    className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
+                  />
+                </div>
+
+                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700">
+                  Save
+                </button>
               </div>
             </SettingRow>
+
             <SettingRow id="demo" title="Personal demographic information" openSection={openSection} toggleSection={toggleSection} />
             <SettingRow id="verif" title="Verifications" openSection={openSection} toggleSection={toggleSection} />
           </div>
@@ -128,21 +181,19 @@ const AccountPreferences = () => {
               <button onClick={handleSave} className="mt-4 px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold">Update Language</button>
             </SettingRow>
             
-            {/* You can add more SettingRow components here for other preferences */}
             <SettingRow id="content-lang" title="Content language" value="English" openSection={openSection} toggleSection={toggleSection} />
             <SettingRow id="autoplay" title="Autoplay videos" value="On" openSection={openSection} toggleSection={toggleSection} />
           </div>
         </div>
       </section>
 
-      {/* Footer Links */}
+      {/* Footer */}
       <div className="flex flex-wrap justify-center gap-4 py-6 text-xs text-gray-500">
         <span className="cursor-pointer hover:underline">Help Center</span>
         <span className="cursor-pointer hover:underline">Privacy Policy</span>
         <span className="cursor-pointer hover:underline">Accessibility</span>
         <span className="cursor-pointer hover:underline">User Agreement</span>
       </div>
-
     </div>
   );
 };
