@@ -5,6 +5,8 @@ import Signsecurity from './Tabs/Signsecurity/Signsecurity.jsx';
 import VisibilitySettings from './Tabs/VisibilitySettings/VisibilitySettings.jsx';
 import DataPrivacy from './Tabs/DataPrivacy/DataPrivacy.jsx';
 
+
+
 const EditProfile = () => {
   
   const [activeTab, setActiveTab] = useState(null); 
@@ -79,27 +81,26 @@ const EditProfile = () => {
                  <Signsecurity />
               </div>
             )}
-
              {/* 3.  Visibility Settings */}
             {activeTab === 'Visibility' && (
               <div className="min-h-full p-4 md:p-8 bg-gray-50">
                  <VisibilitySettings />
               </div>
             )}
-
-           
-
             {/* Data privacy */}
             {activeTab === 'Data privacy' && (
               <div className="p-8 text-center text-gray-500">
               <DataPrivacy /> 
               </div>
             )}
-
-
-
-
-
+            {/*
+             {/* Job Discovery 
+            {activeTab === 'Data privacy' && (
+              <div className="p-8 text-center text-gray-500">
+              <JobDiscovery /> 
+              </div>
+            )}  
+            */}
 
 
              {/* 3. Default View  */}
