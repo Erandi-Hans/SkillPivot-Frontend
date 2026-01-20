@@ -18,75 +18,32 @@ import DataPrivacy from './components/Studentmaindashboard/Editprofile/Tabs/Data
 import Companydashbord from './components/Companymaindashboard/Companydashbord/Companydashbord';
 import CompanyNavbar from './components/Companymaindashboard/Companynavbar/Companynavbar';
 
-
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Role Selection */}
         <Route path="/" element={<RoleSelection />} />
-        
-        {/* Sign In Page */}
         <Route path="/signin" element={<SignIn />} />
-
-          {/* Sign up Page */}
         <Route path="/signup" element={<Signuppage />} />
-       
-        {/* Forget password page */}
-      <Route path="/forget-password" element={<ForgotPassword />} />
+        <Route path="/forget-password" element={<ForgotPassword />} />
+        <Route path="/enter-otp" element={<EnterOTP />} />
 
-      {/* Forget password page */}
-      <Route path="/enter-otp" element={<EnterOTP />} />
+        {/* Student Routes */}
+        <Route path="/student-dashboard" element={<StudentDashboard />} />
+        <Route path="/cv-generate" element={<Cvgenerate />} />
+        <Route path="/edit-profile" element={<Editprofile />} />
+        <Route path="/find-jobs" element={<FindJob />} />
+        <Route path="/applications" element={<Manageapplication />} />
+        <Route path="/accountPreferences" element={<AccountPreferences />} />
+        <Route path="/signsecurity" element={<Signsecurity/>} />
+        <Route path="/visibilitySettings" element={<VisibilitySettings/>} />
+        <Route path="/dataPrivacy" element={<DataPrivacy/>} />
 
-      {/* Student dashboard */}
-      <Route path="/student-dashboard" element={<StudentDashboard />} />
-
-      {/* Generate cv*/}
-      <Route path="/cv-generate" element={<Cvgenerate />} />
-
-       {/* Edit profile*/}
-      <Route path="/edit-profile" element={<Editprofile />} />
-
-       {/* Find jobs*/}
-      <Route path="/find-jobs" element={<FindJob />} />
-
-       {/* Manage applications*/}
-      <Route path="/applications" element={<Manageapplication />} />
-
-          {/* Account Preferences*/}
-      <Route path="/accountPreferences" element={<AccountPreferences />} />
-      
-
-      {/* Sign & security*/}
-      <Route path="/signsecurity" element={<Signsecurity/>} />
-
-      VisibilitySettings
-
-            {/* Visibility Settings*/}
-      <Route path="/visibilitySettings" element={<VisibilitySettings/>} />
-
-          {/* DataPrivacy Settings*/}
-      <Route path="/dataPrivacy" element={<DataPrivacy/>} />
-
-
-      {/* Company */}
-      {/* ---------- */}
-
-              {/* Company Dashbord*/}
-      <Route path="/companydashbord" element={<Companydashbord/>} />
-
-
-              {/* Company Navbar*/}
-      <Route path="/companyNavbar" element={<CompanyNavbar/>} />
-
-        
-
-
-      
-
+        {/* Company Routes */}
+        <Route path="/company-dashboard" element={<Companydashbord/>} />
+        <Route path="/companyNavbar" element={<CompanyNavbar/>} />
       </Routes>
     </Router>
-    
   );
 }
 
