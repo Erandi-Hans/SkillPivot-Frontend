@@ -1,38 +1,29 @@
-import React, { useState, useEffect } from 'react'; 
+import React, { useState } from 'react'; // Removed useEffect
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { Mail, Lock, EyeOff, Eye } from 'lucide-react'; 
-import Signuppage from '../Signuppage/Signuppage.jsx';
-import Studentdashboard from '../../Studentmaindashboard/StudentDashboard/StudentDashboard.jsx';
-import ForgotPassword from '../Forgetpassword/Forgetpassword.jsx';
-
 
 const SignIn = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   
-
-  const roleFromUrl = searchParams.get('role') || 'Internship Seeker';
-  const [selectedRole, setSelectedRole] = useState(roleFromUrl);
+  // Directly setting the initial state from URL to avoid cascading renders
+  // This removes the need for useEffect and solves the "setState synchronously" error
+  const [selectedRole, setSelectedRole] = useState(searchParams.get('role') || 'Internship Seeker');
   const [showPassword, setShowPassword] = useState(false); 
-
- 
-  useEffect(() => {
-    const urlRole = searchParams.get('role');
-    if (urlRole) {
-      setSelectedRole(urlRole);
-    }
-  }, [searchParams]);
-
   
+  // States to capture user input
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+
   const handleSignIn = (e) => {
     e.preventDefault(); 
-    console.log("Signing in as:", selectedRole);
+    // Logic to handle navigation based on selected role
+    console.log("Signing in as:", selectedRole, "Email:", email);
 
     if (selectedRole === 'Admin') {
       navigate('/admin-dashboard');
     } else if (selectedRole === 'Company') {
       navigate('/company-dashboard');
-      
     } else {
       navigate('/student-dashboard');
     }
@@ -53,7 +44,7 @@ const SignIn = () => {
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">Sign in</h2>
         <p className="mt-2 text-gray-500">Welcome back! Please enter your details.</p>
 
-        {/* --- Role Selection Tabs --- */}
+        {/* Role Selection Tabs */}
         <div className="flex p-1 mt-8 mb-8 bg-gray-100 rounded-2xl">
           {['Company', 'Internship Seeker', 'Admin'].map((role) => (
             <label key={role} className="flex-1 cursor-pointer">
@@ -72,7 +63,7 @@ const SignIn = () => {
           ))}
         </div>
 
-        {/* --- Sign In Form --- */}
+        {/* Sign In Form */}
         <form onSubmit={handleSignIn} className="space-y-6">
           
           {/* Email Field */}
@@ -82,6 +73,8 @@ const SignIn = () => {
               <Mail className="absolute text-gray-400 -translate-y-1/2 left-4 top-1/2" size={20} />
               <input 
                 type="email" 
+                value={email}
+                onChange={(e) => setEmail(e.target.value)} 
                 placeholder="student@skillpivot.lk" 
                 className="w-full p-4 pl-12 transition-all border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
                 required 
@@ -96,6 +89,8 @@ const SignIn = () => {
               <Lock className="absolute text-gray-400 -translate-y-1/2 left-4 top-1/2" size={20} />
               <input 
                 type={showPassword ? "text" : "password"} 
+                value={password}
+                onChange={(e) => setPassword(e.target.value)} 
                 placeholder="••••••••" 
                 className="w-full p-4 pl-12 transition-all border border-gray-200 rounded-xl bg-gray-50 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20" 
                 required 
@@ -121,15 +116,13 @@ const SignIn = () => {
               onClick={() => navigate('/forget-password')} 
               className="text-sm font-bold text-blue-600 transition-colors hover:text-blue-700 hover:underline"
             >
-              
               Forgot password?
             </button>
           </div>
 
-          {/* Dynamic Login Button */}
+          {/* Submit Button */}
           <button 
             type="submit" 
-            onClick={() => navigate('/student-dashboard')} 
             className="w-full p-4 text-lg font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 hover:shadow-blue-300 active:scale-[0.98] shadow-blue-100"
           >
             Sign in as {selectedRole.split(' ')[0]}
@@ -146,7 +139,6 @@ const SignIn = () => {
           </div>
         </div>
 
-        {/* Social Logins */}
         <div className="flex gap-4">
           <button type="button" className="flex items-center justify-center w-1/2 gap-2 p-3 text-sm font-semibold transition-all border border-gray-200 rounded-xl hover:bg-gray-50 hover:border-gray-300">
             <img src="https://www.svgrepo.com/show/355037/google.svg" className="h-5" alt="Google" /> Google
@@ -156,7 +148,6 @@ const SignIn = () => {
           </button>
         </div>
 
-        {/* Sign Up Link */}
         <p className="mt-10 text-sm text-center text-gray-500">
           Don't have an account? 
           <button 
