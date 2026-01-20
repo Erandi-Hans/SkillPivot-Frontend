@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom'; 
 import { UserRoundPen } from 'lucide-react';
 import Navbar from '../Navbar/Navbar.jsx'; 
@@ -9,15 +9,18 @@ import VisibilitySettings from './Tabs/VisibilitySettings/VisibilitySettings.jsx
 import DataPrivacy from './Tabs/DataPrivacy/DataPrivacy.jsx';
 
 const EditProfile = () => {
-  // Set 'Account preferences' as the default state so it loads automatically
+  // Set initial state to 'Account preferences' as requested
   const [activeTab, setActiveTab] = useState('Account preferences'); 
   const [profileImg, setProfileImg] = useState(null); 
   const fileInputRef = useRef(null);
-  
-  // Hook to track the current URL location
-  const location = useLocation(); 
+  const location = useLocation();
 
-  // Function to handle profile image selection and preview
+  // Ensure the page starts at the top when the component is mounted
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  // Handle profile image file selection and conversion to base64 for preview
   const handleFileChange = (file) => {
     if (file && file.type.startsWith('image/')) {
       const reader = new FileReader();
@@ -28,20 +31,20 @@ const EditProfile = () => {
 
   return (
     <div className="min-h-screen bg-[#F3F2EF]">
-      {/* Navigation bar fixed at the top */}
+      {/* Sticky Navigation bar */}
       <div className="fixed top-0 left-0 right-0 z-50">
         <Navbar />
       </div>
 
-      {/* Main container with padding top to prevent overlap with fixed Navbar */}
-      <div className="container flex items-center justify-center h-screen max-w-6xl px-4 pt-20 pb-12 mx-auto">
+      {/* Main content container with top padding to clear the Navbar */}
+      <div className="container flex items-center justify-center max-w-6xl min-h-screen px-4 pt-20 pb-12 mx-auto">
         
-        {/* Settings Card Layout */}
+        {/* Main Settings Card */}
         <div className="flex w-full h-[85vh] bg-white shadow-xl rounded-xl overflow-hidden border border-gray-200 mt-4">
           
-          {/* Sidebar Section */}
+          {/* Sidebar Navigation Section */}
           <aside className="flex-col hidden bg-white border-r w-80 md:flex">
-            {/* Sidebar Profile Header */}
+            {/* User Profile / Settings Header */}
             <div className="flex items-center p-6 space-x-3 border-b border-gray-100">
               <div 
                 onClick={() => fileInputRef.current.click()}
@@ -50,19 +53,19 @@ const EditProfile = () => {
                 {profileImg ? (
                   <img src={profileImg} alt="Profile" className="object-cover w-full h-full" />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-[10px] text-gray-500 text-center leading-tight">Upload</div>
+                  <div className="flex items-center justify-center h-full text-[10px] text-gray-500 text-center leading-tight font-medium">Upload</div>
                 )}
               </div>
               <h1 className="text-xl font-bold text-gray-800">Settings</h1>
             </div>
 
-            {/* Sidebar Navigation Buttons */}
+            {/* Navigation links for different setting tabs */}
             <nav className="flex-1 mt-2 overflow-y-auto">
               {['Account preferences', 'Sign in & security', 'Visibility', 'Data privacy'].map((tab) => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`w-full text-left px-6 py-4 text-[15px] font-semibold transition border-l-4 ${
+                  className={`w-full text-left px-6 py-4 text-[15px] font-semibold transition-all border-l-4 ${
                     activeTab === tab 
                     ? "bg-blue-50 text-blue-700 border-blue-700" 
                     : "text-gray-600 border-transparent hover:bg-gray-50"
@@ -74,21 +77,21 @@ const EditProfile = () => {
             </nav>
           </aside>
 
-          {/* Main Content Display Area */}
+          {/* Content Rendering Area */}
           <main className="flex-1 overflow-y-auto bg-gray-50">
             <div className="w-full h-full">
-              {/* Dynamic Rendering based on activeTab state */}
-              {activeTab === 'Account preferences' && <div className="p-8"><AccountPreferences /></div>}
-              {activeTab === 'Sign in & security' && <div className="p-8"><Signsecurity /></div>}
-              {activeTab === 'Visibility' && <div className="p-8"><VisibilitySettings /></div>}
-              {activeTab === 'Data privacy' && <div className="p-8"><DataPrivacy /></div>}
+              {/* Conditional rendering based on the selected tab */}
+              {activeTab === 'Account preferences' && <div className="p-8 animate-fadeIn"><AccountPreferences /></div>}
+              {activeTab === 'Sign in & security' && <div className="p-8 animate-fadeIn"><Signsecurity /></div>}
+              {activeTab === 'Visibility' && <div className="p-8 animate-fadeIn"><VisibilitySettings /></div>}
+              {activeTab === 'Data privacy' && <div className="p-8 animate-fadeIn"><DataPrivacy /></div>}
 
-              {/* Fallback view if no tab is selected */}
+              {/* Default view if somehow no tab is active */}
               {!activeTab && (
                 <div className="flex items-center justify-center h-full p-10 text-center bg-white">
-                  <div>
-                    <UserRoundPen className="mx-auto mb-4 text-gray-300" size={60} />
-                    <p className="italic text-gray-400">Please select a setting to edit your profile</p>
+                  <div className="opacity-40">
+                    <UserRoundPen className="mx-auto mb-4 text-gray-400" size={60} />
+                    <p className="italic text-gray-500">Please select a setting to edit your profile</p>
                   </div>
                 </div>
               )}
@@ -97,7 +100,7 @@ const EditProfile = () => {
         </div>
       </div>
 
-      {/* Hidden file input for profile image uploads */}
+      {/* Hidden file input for handling image uploads */}
       <input 
         type="file" 
         ref={fileInputRef} 

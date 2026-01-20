@@ -1,5 +1,5 @@
-import React from 'react';
-import { useNavigate, useLocation } from 'react-router-dom'; // added useLocation
+import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   FileUser, 
@@ -7,90 +7,129 @@ import {
   UserRoundPen, 
   ClipboardCheck,
   Bell,
-  Zap
+  Zap,
+  LogOut,
+  User,
+  RefreshCw,
+  LogIn // Added LogIn icon for professional look
 } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
-  const location = useLocation(); // Current path එක හඳුනා ගැනීමට
+  const location = useLocation();
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+
+  // Define authentication pages where full navigation is hidden
+  const isAuthPage = location.pathname === '/' || location.pathname === '/signin' || location.pathname === '/signup';
 
   const navLinks = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/student-dashboard' },
     { name: 'Generate CV', icon: FileUser, path: '/cv-generate' },
     { name: 'Find Jobs', icon: Search, path: '/find-jobs' },
     { name: 'Edit Profile', icon: UserRoundPen, path: '/edit-profile' },
-    { name: 'Manage Applications', icon: ClipboardCheck, path: '/applications' },
+    { name: 'Applications', icon: ClipboardCheck, path: '/applications' },
   ];
 
+  // Logic for Logo click
+  const handleLogoClick = () => {
+    if (isAuthPage) {
+      navigate('/'); // Role Selection Page
+    } else {
+      navigate('/student-dashboard'); // Student Dashboard
+    }
+  };
+
+  // Logout handler that cleans up and redirects to the Sign In page
+  const handleLogout = () => {
+    console.log("Clearing user session...");
+    // If you use localStorage, add: localStorage.removeItem('token');
+    navigate('/signin'); // Redirecting to Sign In page as requested
+  };
+
   return (
-    <nav className="sticky top-0 z-50 flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200 shadow-sm">
+    <nav className="sticky top-0 z-50 flex items-center justify-between px-8 py-3 bg-white border-b border-gray-200 shadow-sm backdrop-blur-md bg-white/90">
       
-      {/* Brand Logo */}
-      <div 
-        className="flex items-center gap-2 cursor-pointer" 
-        onClick={() => navigate('/student-dashboard')}
-      >
-        <div className="p-2 text-white bg-blue-600 rounded-lg">
+      {/* Brand Logo Section */}
+      <div className="flex items-center gap-2 cursor-pointer group" onClick={handleLogoClick}>
+        <div className="p-2 text-white transition-transform bg-blue-600 rounded-lg group-hover:scale-110">
           <Zap size={20} fill="currentColor" />
         </div>
-        <h1 className="text-xl font-bold tracking-tight text-slate-800">
-          SKILLPIVOT<span className="text-blue-600">LK</span>
+        <h1 className="text-xl font-bold tracking-tight uppercase text-slate-800">
+          SkillPivot<span className="text-blue-600">lk</span>
         </h1>
       </div>
 
-      {/* Navigation Links */}
-      <div className="items-center hidden gap-6 lg:flex">
-        {navLinks.map((link) => {
-          const Icon = link.icon;
-          // check if current URL matches the link's path
-          const isActive = location.pathname === link.path;
-          
-          return (
-            <button
-              key={link.name}
-              onClick={() => navigate(link.path)}
-              className={`flex items-center gap-2 text-sm font-medium transition-all pb-1 border-b-2 ${
-                isActive 
-                  ? 'border-blue-600 text-blue-600 font-semibold' 
-                  : 'border-transparent text-gray-500 hover:text-blue-600'
-              }`}
-            >
-              <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
-              <span>{link.name}</span>
-            </button>
-          );
-        })}
-      </div>
+      {/* Main Navigation - Visible only for logged-in users */}
+      {!isAuthPage && (
+        <div className="items-center hidden gap-2 lg:flex">
+          {navLinks.map((link) => {
+            const Icon = link.icon;
+            const isActive = location.pathname === link.path;
+            return (
+              <button
+                key={link.name}
+                onClick={() => navigate(link.path)}
+                className={`flex items-center gap-2 px-4 py-2 text-sm font-medium transition-all rounded-lg ${
+                  isActive ? 'bg-blue-50 text-blue-600' : 'text-gray-500 hover:bg-gray-50 hover:text-blue-600'
+                }`}
+              >
+                <Icon size={18} strokeWidth={isActive ? 2.5 : 2} />
+                <span>{link.name}</span>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
-      {/* Search and User Profile Area */}
+      {/* Action Buttons Section */}
       <div className="flex items-center gap-4">
-        <div className="relative hidden md:block">
-          <input
-            type="text"
-            placeholder="Search internships..."
-            className="w-64 px-4 py-2 pl-10 text-sm transition-all bg-gray-100 border border-transparent rounded-full outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white"
-          />
-          <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
-        </div>
+        
+        {/* Profile Dropdown (Shown when logged in) */}
+        {!isAuthPage ? (
+          <div className="relative flex items-center gap-3 pl-4 border-l border-gray-200">
+            <div className="hidden text-right sm:block">
+              <p className="text-sm font-bold leading-tight text-gray-800">Alex Perera</p>
+              <p className="text-[10px] font-medium text-blue-600 uppercase tracking-wider">Undergraduate</p>
+            </div>
+            
+            <div className="relative cursor-pointer" onClick={() => setShowProfileMenu(!showProfileMenu)}>
+              <img
+                src="https://via.placeholder.com/40"
+                alt="Profile"
+                className="object-cover w-10 h-10 transition-all border-2 border-transparent rounded-full hover:border-blue-500"
+              />
+              
+              {showProfileMenu && (
+                <div className="absolute right-0 py-2 mt-3 bg-white border border-gray-100 shadow-xl w-52 rounded-xl">
+                  <button onClick={() => { navigate('/edit-profile'); setShowProfileMenu(false); }} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600">
+                    <User size={16} /> My Profile
+                  </button>
+                  
+                  {/* Change Role Link back to Main Selection Page */}
+                  <button onClick={() => { navigate('/'); setShowProfileMenu(false); }} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600">
+                    <RefreshCw size={16} /> Change Role
+                  </button>
 
-        {/* Notifications */}
-        <button className="relative p-2 text-gray-500 transition-colors rounded-full hover:bg-gray-100">
-          <Bell size={20} />
-          <span className="absolute w-2.5 h-2.5 bg-red-500 border-2 border-white rounded-full top-2 right-2"></span>
-        </button>
-
-        {/* User Profile */}
-        <div className="flex items-center gap-3 pl-4 border-l border-gray-200">
-          <div className="hidden text-right sm:block">
-            <p className="text-sm font-semibold leading-tight text-gray-800">Alex Perera</p>
-            <p className="text-xs text-gray-500">Undergraduate</p>
+                  <hr className="my-1 border-gray-100" />
+                  
+                  {/* Logout link that goes to Sign In page */}
+                  <button onClick={handleLogout} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                    <LogOut size={16} /> Log Out
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
-          <img
-            src="https://via.placeholder.com/40"
-            alt="Profile"
-            className="object-cover w-10 h-10 transition-all border border-blue-100 rounded-full cursor-pointer hover:border-blue-500"
-          />
-        </div>
+        ) : (
+          /* Sign In Link - Shown on Role Selection page */
+          <button 
+            onClick={() => navigate('/signin')}
+            className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg active:scale-95"
+          >
+            <LogIn size={16} />
+            Sign In
+          </button>
+        )}
       </div>
     </nav>
   );
