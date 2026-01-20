@@ -1,5 +1,5 @@
 import React from 'react';
-import Navbar from '../Navbar/Navbar.jsx'; // ඔබේ Navbar එක මෙතැනින් import වේ
+import Navbar from '../Navbar/Navbar.jsx'; 
 import { 
   MoreHorizontal, 
   ThumbsUp, 
