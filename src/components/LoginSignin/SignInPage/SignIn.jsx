@@ -23,7 +23,7 @@ const SignIn = () => {
     if (selectedRole === 'Admin') {
       navigate('/admin-dashboard');
     } else if (selectedRole === 'Company') {
-      navigate('/company-dashboard');
+      navigate('/Companydashbord');
     } else {
       navigate('/student-dashboard');
     }

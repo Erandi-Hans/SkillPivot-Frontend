@@ -15,6 +15,8 @@ import AccountPreferences from './components/Studentmaindashboard/Editprofile/Ta
 import Signsecurity from './components/Studentmaindashboard/Editprofile/Tabs/Signsecurity/Signsecurity';
 import VisibilitySettings from './components/Studentmaindashboard/Editprofile/Tabs/VisibilitySettings/VisibilitySettings';
 import DataPrivacy from './components/Studentmaindashboard/Editprofile/Tabs/DataPrivacy/DataPrivacy';
+import Companydashbord from './components/Companymaindashboard/Companydashbord/Companydashbord';
+import CompanyNavbar from './components/Companymaindashboard/Companynavbar/Companynavbar';
 
 
 function App() {
@@ -66,7 +68,19 @@ function App() {
           {/* DataPrivacy Settings*/}
       <Route path="/dataPrivacy" element={<DataPrivacy/>} />
 
+
+      {/* Company */}
+      {/* ---------- */}
+
+              {/* Company Dashbord*/}
+      <Route path="/companydashbord" element={<Companydashbord/>} />
+
+
+              {/* Company Navbar*/}
+      <Route path="/companyNavbar" element={<CompanyNavbar/>} />
+
         
+
 
       
 
