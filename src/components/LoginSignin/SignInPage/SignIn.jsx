@@ -85,7 +85,7 @@ const SignIn = () => {
 
           {/* Forgot Password Link - Placed right after Password Input */}
           <div className="flex justify-end">
-            <Link to="/forgot-password" size="sm" className="text-sm font-bold text-blue-600 hover:underline">
+            <Link to="/forget-password" size="sm" className="text-sm font-bold text-blue-600 hover:underline">
               Forgot password?
             </Link>
           </div>
