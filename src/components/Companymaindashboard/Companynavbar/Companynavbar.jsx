@@ -24,10 +24,10 @@ const CompanyNavbar = () => {
   // Specific navigation links for Company/Employer users
   const navLinks = [
     { name: 'Overview', icon: LayoutDashboard, path: '/company-dashboard' },
-    { name: 'Post a Job', icon: PlusCircle, path: '/post-job' },
-    { name: 'Manage Jobs', icon: ClipboardList, path: '/manage-jobs' },
-    { name: 'Applicants', icon: Users, path: '/view-applicants' },
-    { name: 'Company Profile', icon: Building2, path: '/company-profile' },
+    { name: 'Post a Job', icon: PlusCircle, path: '/companypostaJob' },
+    { name: 'Manage Jobs', icon: ClipboardList, path: '/companymanagejobs' },
+    { name: 'Applicants', icon: Users, path: '/companyapplication' },
+    { name: 'Company Profile', icon: Building2, path: '/companyprofile' },
   ];
 
   // Handles clicking the brand logo to navigate based on auth status
