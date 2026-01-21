@@ -17,6 +17,10 @@ import VisibilitySettings from './components/Studentmaindashboard/Editprofile/Ta
 import DataPrivacy from './components/Studentmaindashboard/Editprofile/Tabs/DataPrivacy/DataPrivacy';
 import Companydashbord from './components/Companymaindashboard/Companydashbord/Companydashbord';
 import CompanyNavbar from './components/Companymaindashboard/Companynavbar/Companynavbar';
+import Companymanagejobs from './components/Companymaindashboard/Companymanagejobs/Companymanagejobs';
+import CompanypostaJob from './components/Companymaindashboard/CompanypostaJob/CompanypostaJob';
+import Companyapplication from './components/Companymaindashboard/Companyapplication/Companyapplication';
+import Companyprofile from './components/Companymaindashboard/Companyprofile/Companyprofile';
 
 function App() {
   return (
@@ -42,6 +46,11 @@ function App() {
         {/* Company Routes */}
         <Route path="/company-dashboard" element={<Companydashbord/>} />
         <Route path="/companyNavbar" element={<CompanyNavbar/>} />
+        <Route path="/companypostaJob" element={<CompanypostaJob/>} />
+        <Route path="/companymanagejobs" element={<Companymanagejobs/>}/>
+        <Route path="/companyapplication" element={<Companyapplication/>}/>
+        <Route path="/companyprofile" element={<Companyprofile/>}/>
+        
       </Routes>
     </Router>
   );
