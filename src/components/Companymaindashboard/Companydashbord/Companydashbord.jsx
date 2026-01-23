@@ -1,5 +1,5 @@
 import React from 'react';
-import CompanyNavbar from '../Companynavbar/Companynavbar.jsx';
+import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
 import { Users, Briefcase, Clock, TrendingUp, Plus, Calendar, ArrowRight } from 'lucide-react';
 
 const Companydashbord = () => {

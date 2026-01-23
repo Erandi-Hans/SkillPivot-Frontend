@@ -1,5 +1,5 @@
 import React from 'react';
-import CompanyNavbar from '../Companynavbar/Companynavbar.jsx';
+import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
 import { Mail, FileUser, CheckCircle, XCircle, Clock, ExternalLink } from 'lucide-react';
 
 const Companyapplication = () => {
