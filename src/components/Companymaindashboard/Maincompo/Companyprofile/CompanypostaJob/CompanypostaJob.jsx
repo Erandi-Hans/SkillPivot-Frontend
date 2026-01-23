@@ -1,5 +1,5 @@
 import React from 'react';
-import CompanyNavbar from '../Companynavbar/Companynavbar.jsx';
+import CompanyNavbar from '../../../Companynavbar/Companynavbar.jsx';
 import { Send, Briefcase, MapPin, DollarSign, FileText, ChevronRight } from 'lucide-react';
 
 const CompanypostaJob = () => {

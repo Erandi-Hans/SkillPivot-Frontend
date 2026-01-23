@@ -1,5 +1,5 @@
 import React from 'react';
-import CompanyNavbar from '../Companynavbar/Companynavbar.jsx';
+import CompanyNavbar from '../../Companynavbar/Companynavbar.jsx';
 import { Building2, Globe, Mail, MapPin, Camera, Save, Github, Linkedin } from 'lucide-react';
 
 const Companyprofile = () => {
