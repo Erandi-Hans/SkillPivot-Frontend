@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminNavbar from '../Adminnavbar/Adminnavbar.jsx'; // Ensure the path is correct
+import AdminNavbar from '../../Adminnavbar/Adminnavbar';
 import { 
   Users, 
   Search, 
