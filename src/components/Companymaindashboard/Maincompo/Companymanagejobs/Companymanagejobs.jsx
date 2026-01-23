@@ -1,5 +1,5 @@
 import React from 'react';
-import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
+import CompanyNavbar from '../Companynavbar/Companynavbar.jsx';
 import { Edit, Trash2, Eye, MoreVertical, Search, Filter } from 'lucide-react';
 
 const Companymanagejobs = () => {
