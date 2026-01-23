@@ -28,6 +28,7 @@ import Companyprofile from './components/Companymaindashboard/Maincompo/Companyp
 
 import AdminDashboard from './components/Admindashboardmain/Admindashboard/Admindashboard';
 import AdminNavbar from './components/Admindashboardmain/Adminnavbar/Adminnavbar';
+import Adminusermanagemnt from './components/Admindashboardmain/Adminmaincompo/Adminusermanagemnt/Adminusermanagemnt';
 
 function App() {
   return (
@@ -61,6 +62,8 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard/>} />
         <Route path="/admin-navbar" element={<AdminNavbar/>} />
+        <Route path="/admin-users" element={<Adminusermanagemnt/>} />
+        
         
       </Routes>
     </Router>

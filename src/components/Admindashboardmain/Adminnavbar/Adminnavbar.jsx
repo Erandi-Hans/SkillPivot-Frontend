@@ -25,10 +25,10 @@ const AdminNavbar = () => {
   // Navigation Links for the Admin Panel
   const adminLinks = [
     { name: 'Dashboard Overview', icon: LayoutDashboard, path: '/admin-dashboard' },
-    { name: 'User Management', icon: Users, path: '/admin/users' },
-    { name: 'Company Verification', icon: Building2, path: '/admin/verifications' },
-    { name: 'Job Moderation', icon: ShieldCheck, path: '/admin/jobs' },
-    { name: 'System Settings', icon: Settings, path: '/admin/settings' },
+    { name: 'User Management', icon: Users, path: '/admin-users' },
+    { name: 'Company Verification', icon: Building2, path: '/admin-verifications' },
+    { name: 'Job Moderation', icon: ShieldCheck, path: '/admin-jobs' },
+    { name: 'System Settings', icon: Settings, path: '/admin-settings' },
   ];
 
   const handleLogout = () => {
