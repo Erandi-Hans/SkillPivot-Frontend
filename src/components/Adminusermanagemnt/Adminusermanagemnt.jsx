@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import AdminNavbar from '../../Adminnavbar/Adminnavbar';
+import AdminNavbar from '../Admindashboardmain/Adminnavbar/Adminnavbar.jsx';
 import { 
   Users, 
   Search, 

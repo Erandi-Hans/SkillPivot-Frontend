@@ -1,8 +1,5 @@
 import React, { useState } from 'react';
-/* Accessing AdminNavbar from Adminmaincompo subfolder. 
-  We use '../../' to go back to the components root.
-*/
-import AdminNavbar from '../../Adminnavbar/Adminnavbar.jsx'; 
+import AdminNavbar from '../../Adminnavbar/Adminnavbar.jsx';
 import { 
   Settings, 
   Bell, 
