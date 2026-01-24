@@ -31,6 +31,7 @@ import AdminNavbar from './components/Admindashboardmain/Adminnavbar/Adminnavbar
 import Adminusermanagemnt from './components/Adminusermanagemnt/Adminusermanagemnt';
 import Admincompanyverification from './components/Admincompanyverification/Admincompanyverification';
 import Adminjob from './components/Admindashboardmain/Adminmaincompo/Adminjob/Adminjob';
+import Adminsystemsettings from './components/Admindashboardmain/Adminmaincompo/Adminsystemsettings/Adminsystemsettings';
 
 function App() {
   return (
@@ -67,8 +68,8 @@ function App() {
         <Route path="/admin-users" element={<Adminusermanagemnt/>} />
         <Route path="/admin-verifications" element={<Admincompanyverification/>} />
         <Route path="/admin-jobs" element={<Adminjob/>} />
-        <Route path="/admin-jobs" element={<Adminjob/>} />
-        admin-settings
+        <Route path="/admin-settings" element={<Adminsystemsettings/>} />
+        
         
       </Routes>
     </Router>
