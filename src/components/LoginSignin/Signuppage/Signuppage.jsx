@@ -20,11 +20,11 @@ const Signuppage = () => {
         try {
             // Connection to your .NET Auth API
             const response = await axios.post('https://localhost:7118/api/Auth/register', {
-                email: email,
-                password: password,
-                role: role,
-                firstName: firstName, 
-                lastName: lastName
+                Email: email,
+                Password: password,
+                Role: role,
+                Firstname: firstName, 
+                Lastname: lastName
             });
             alert("Account created successfully!");
             navigate('/signin'); 
