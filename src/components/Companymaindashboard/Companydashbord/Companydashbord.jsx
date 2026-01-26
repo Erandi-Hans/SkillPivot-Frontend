@@ -1,11 +1,35 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios'; // Ensure axios is installed: npm install axios
 import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
 import { Users, Briefcase, Clock, TrendingUp, Plus, Calendar, ArrowRight } from 'lucide-react';
 
 const Companydashbord = () => {
+  // State to store the dynamic count of active jobs from the backend
+  const [activeJobsCount, setActiveJobsCount] = useState(0);
+
+  // Fetch data from the API when the component mounts
+  useEffect(() => {
+    // Calling the JobPosts API
+    axios.get('https://localhost:7118/api/JobPosts')
+      .then(res => {
+        // Update the state with the total number of jobs found in the database
+        setActiveJobsCount(res.data.length);
+      })
+      .catch(err => {
+        console.error("Error fetching job posts:", err);
+      });
+  }, []);
+
   // Statistical data for the overview metric cards
   const stats = [
-    { label: 'Active Jobs', value: '08', icon: Briefcase, color: 'text-blue-600', bg: 'bg-blue-100' },
+    { 
+      label: 'Active Jobs', 
+      // Displaying the dynamic count. padStart ensures it looks like '01', '08' etc.
+      value: activeJobsCount.toString().padStart(2, '0'), 
+      icon: Briefcase, 
+      color: 'text-blue-600', 
+      bg: 'bg-blue-100' 
+    },
     { label: 'Total Applicants', value: '124', icon: Users, color: 'text-purple-600', bg: 'bg-purple-100' },
     { label: 'Pending Reviews', value: '15', icon: Clock, color: 'text-orange-600', bg: 'bg-orange-100' },
     { label: 'Success Rate', value: '82%', icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-100' },
