@@ -8,7 +8,7 @@ const CompanypostaJob = () => {
   const navigate = useNavigate();
 
   // --- Step Selection State ---
-  const [selectedCategory, setSelectedCategory] = useState(''); // මුලින්ම හිස්ව පවතී
+  const [selectedCategory, setSelectedCategory] = useState(''); 
 
   // --- States for Form Fields ---
   const [jobTitle, setJobTitle] = useState('Full Stack Developer Intern');
@@ -21,29 +21,41 @@ const CompanypostaJob = () => {
   const [deadline, setDeadline] = useState('');
   const [showTooltip, setShowTooltip] = useState(false);
 
+  // --- Handle Submit Function ---
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Mapping the data to match your .NET JobPost model
     const internshipData = {
-      jobPostId: 0,
+      // jobPostId is 0 because the database will auto-increment it
+      jobPostId: 0, 
       jobTitle: jobTitle,
-      description: `[Category: ${selectedCategory}] [Mode: ${workMode}] [Duration: ${duration}] [Deadline: ${deadline}] - ${description}`,
+      // Combining details into the description field as requested
+      description: `[Category: ${selectedCategory}] [Mode: ${workMode}] [Duration: ${duration}] [Deadline: ${deadline}] [Location: ${location}] [Stipend: ${stipend}] - ${description}`,
       technologyStack: stack,
       jobType: workMode,
       jobRole: "Intern",
       status: "Active",
       postedDate: new Date().toISOString(),
-      companyId: 0 
+      // IMPORTANT: Using CompanyId 1 (Ensure this exists in your Database)
+      companyId: 1 
     };
 
     try {
+      // Sending data to the .NET API
       const response = await axios.post('https://localhost:7118/api/JobPosts', internshipData);
+      
+      // Checking for success (200 OK or 201 Created)
       if (response.status === 201 || response.status === 200) {
         alert("Success! Your internship has been posted.");
         navigate('/company-dashboard');
       }
     } catch (error) {
-      console.error("Submission Error:", error.response?.data);
-      alert("Failed to post. Please check connection.");
+      // Logging detailed error for debugging
+      console.error("Submission Error Details:", error.response?.data);
+      
+      const errorMsg = error.response?.data?.message || "Failed to post. Please ensure the Backend is running and CompanyId is valid.";
+      alert(`Error: ${errorMsg}`);
     }
   };
 
@@ -107,7 +119,6 @@ const CompanypostaJob = () => {
                       <option value="Full Stack Developer Intern">Full Stack Developer Intern</option>
                       <option value="Frontend Developer Intern">Frontend Developer Intern</option>
                       <option value="Backend Developer Intern">Backend Developer Intern</option>
-                  
                     </select>
                   </div>
 
@@ -198,13 +209,11 @@ const CompanypostaJob = () => {
             </form>
           </div>
         ) : selectedCategory !== '' ? (
-          /* වෙනත් Category එකක් තෝරාගත් විට පෙන්වන පණිවිඩය */
           <div className="p-20 text-center bg-white border border-dashed border-slate-300 rounded-3xl">
             <h3 className="text-xl font-bold text-slate-600">Content for {selectedCategory} coming soon!</h3>
             <p className="text-slate-400">Currently, only Software Engineering category is active.</p>
           </div>
         ) : (
-          /* මුලින්ම පෙන්වන හිස් ස්වභාවය */
           <div className="p-20 text-center border border-dashed bg-slate-100 border-slate-300 rounded-3xl">
             <p className="font-medium text-slate-500">Please select a category above to start posting.</p>
           </div>
