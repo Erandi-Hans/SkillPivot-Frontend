@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, EyeOff, Eye } from 'lucide-react';
+import axios from 'axios'; // For API requests
 
 const SignIn = () => {
-  // Hooks for navigation and retrieving URL parameters
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -12,25 +12,45 @@ const SignIn = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState(''); // State for error messages
 
-  // Handle form submission and redirect based on role
-  const handleSignIn = (e) => {
+  // Handle Login Logic
+  const handleSignIn = async (e) => {
     e.preventDefault();
-    console.log("Signing in with Email:", email);
-    // Role based navigation logic
-    if (selectedRole === 'Admin') {
-      navigate('/admin-dashboard');
-    } else if (selectedRole === 'Company') {
-      navigate('/company-dashboard');
-    } else {
-      navigate('/student-dashboard');
-    }
-  };
+    setError(''); // Clear previous errors
 
-  // Logic for Google Sign-In (Standard placeholder)
-  const handleGoogleSignIn = () => {
-    console.log("Redirecting to Google OAuth...");
-    // Integration logic for Google goes here
+    try {
+      // 1. Call Backend Login API
+      const response = await axios.post('https://localhost:7118/api/Auth/login', {
+        email: email,
+        password: password
+      });
+
+      if (response.status === 200) {
+        const userData = response.data; // id, email, role
+
+        // 2. Validate if the selected tab role matches the database role
+        if (userData.role !== selectedRole) {
+          setError(`Access Denied: This account is registered as a ${userData.role}.`);
+          return;
+        }
+
+        // 3. Save user info to LocalStorage
+        localStorage.setItem('user', JSON.stringify(userData));
+
+        // 4. Navigate to the correct dashboard
+        if (userData.role === 'Admin') {
+          navigate('/admin-dashboard');
+        } else if (userData.role === 'Company') {
+          navigate('/company-dashboard');
+        } else {
+          navigate('/student-dashboard');
+        }
+      }
+    } catch (err) {
+      // 5. Handle Incorrect Password or Server issues
+      setError(err.response?.data?.message || "Invalid Email or Password. Try again.");
+    }
   };
 
   return (
@@ -44,6 +64,13 @@ const SignIn = () => {
 
         <h2 className="text-4xl font-bold tracking-tight text-gray-900">Sign in</h2>
         <p className="mt-2 text-gray-500">Welcome back! Please enter your details.</p>
+
+        {/* Error Message Display */}
+        {error && (
+          <div className="p-3 mt-4 text-sm font-semibold text-red-600 bg-red-100 border border-red-200 rounded-xl">
+            {error}
+          </div>
+        )}
 
         {/* Role Selector Tabs */}
         <div className="flex p-1 mt-8 mb-8 bg-gray-100 rounded-2xl">
@@ -83,30 +110,27 @@ const SignIn = () => {
             </div>
           </div>
 
-          {/* Forgot Password Link - Placed right after Password Input */}
+          {/* Forgot Password */}
           <div className="flex justify-end">
             <Link to="/forget-password" size="sm" className="text-sm font-bold text-blue-600 hover:underline">
               Forgot password?
             </Link>
           </div>
 
-          {/* Email Sign-In Button */}
+          {/* Sign-In Button */}
           <button type="submit" className="w-full p-4 text-lg font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 shadow-blue-200">
             Continue with Email
           </button>
         </form>
 
-        {/* --- DIVIDER --- */}
+        {/* Divider */}
         <div className="relative my-8 text-center">
           <span className="relative z-10 px-4 text-sm text-gray-400 bg-white">Or</span>
           <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gray-100"></div>
         </div>
 
-        {/* --- GOOGLE SIGN IN OPTION --- */}
-        <button 
-          onClick={handleGoogleSignIn}
-          className="flex items-center justify-center w-full gap-3 p-4 font-semibold transition-all border border-gray-200 rounded-xl hover:bg-gray-50"
-        >
+        {/* Google Sign In */}
+        <button onClick={() => console.log("Google Login")} className="flex items-center justify-center w-full gap-3 p-4 font-semibold transition-all border border-gray-200 rounded-xl hover:bg-gray-50">
           <img src="https://www.svgrepo.com/show/355037/google.svg" className="w-5 h-5" alt="Google" />
           Continue with Google
         </button>
