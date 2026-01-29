@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { LayoutGrid, Eye, EyeOff, Mail, Lock, Building2 } from 'lucide-react'; // Building2 icon එක එකතු කළා
+import { LayoutGrid, Eye, EyeOff, Mail, Lock, Building2 } from 'lucide-react'; 
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 
@@ -10,7 +10,7 @@ const Signuppage = () => {
     const [role, setRole] = useState('Internship Seeker');
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
-    const [companyName, setCompanyName] = useState(''); // අලුත් state එක
+    const [companyName, setCompanyName] = useState(''); // State for company-specific registration
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -18,22 +18,28 @@ const Signuppage = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         try {
-            // API එකට යවන දත්ත bundle එක
+            // Data bundle to be sent to the API
             const registrationData = {
                 Email: email,
                 Password: password,
                 Role: role,
-                // Role එක Company නම් පමණක් CompanyName යවයි, නැත්නම් null යවයි
+                // Send CompanyName only if the role is 'Company', otherwise send null
                 CompanyName: role === 'Company' ? companyName : null,
+                // Send names only if the role is NOT 'Company'
                 Firstname: role !== 'Company' ? firstName : null, 
                 Lastname: role !== 'Company' ? lastName : null
             };
 
+            // Making the POST request to the backend
             const response = await axios.post('https://localhost:7118/api/Auth/register', registrationData);
+            
+            // Logging the response for debugging purposes
+            console.log("Server Response:", response.data);
             
             alert("Account created successfully!");
             navigate('/signin'); 
         } catch (error) {
+            // Error handling with custom message from server if available
             alert("Error: " + (error.response?.data?.message || "Registration failed"));
         }
     };
@@ -42,7 +48,7 @@ const Signuppage = () => {
         <div className="flex items-center justify-center min-h-screen p-4 font-sans bg-slate-200">
             <div className="bg-white w-full max-w-[1000px] flex flex-col lg:flex-row rounded-[2rem] shadow-2xl overflow-hidden min-h-[700px]">
                 
-                {/* Left Side Section */}
+                {/* Left Side Section - Branding & Info */}
                 <div className="lg:w-[40%] bg-blue-600 p-10 flex flex-col justify-between text-white">
                     <div>
                         <div className="flex items-center gap-2 mb-10">
@@ -58,7 +64,7 @@ const Signuppage = () => {
                     </div>
                 </div>
 
-                {/* Right Side - Form Section */}
+                {/* Right Side Section - Form Inputs */}
                 <div className="flex-1 p-10 overflow-y-auto bg-white lg:p-14">
                     <div className="mb-6 text-right">
                         <span className="text-sm text-gray-400">Already a member? </span>
@@ -71,7 +77,7 @@ const Signuppage = () => {
                     <p className="mb-8 text-sm text-gray-500">Select your role and enter details below.</p>
 
                     <form onSubmit={handleRegister} className="space-y-5">
-                        {/* Role Selection */}
+                        {/* Role Selection Tabs */}
                         <div>
                             <label className="block mb-3 text-xs font-semibold tracking-wider text-gray-500 uppercase">Select your role</label>
                             <div className="grid grid-cols-3 gap-3">
@@ -84,9 +90,9 @@ const Signuppage = () => {
                             </div>
                         </div>
 
-                        {/* පවතින Role එක අනුව Fields වෙනස් වීම */}
+                        {/* Conditional Fields based on Role */}
                         {role === 'Company' ? (
-                            /* Company Name Field - Role එක Company නම් පමණක් පෙන්වයි */
+                            /* Company Specific Field */
                             <div className="animate-in fade-in slide-in-from-top-2">
                                 <label className="block mb-1 text-sm font-medium text-gray-700">Company Name</label>
                                 <div className="relative">
@@ -102,7 +108,7 @@ const Signuppage = () => {
                                 </div>
                             </div>
                         ) : (
-                            /* First Name & Last Name - අන් අයට පමණක් පෙන්වයි */
+                            /* Individual User Fields (Internship Seeker / Admin) */
                             <div className="grid grid-cols-2 gap-4 animate-in fade-in slide-in-from-top-2">
                                 <div>
                                     <label className="block mb-1 text-sm font-medium text-gray-700">First name</label>
@@ -115,7 +121,7 @@ const Signuppage = () => {
                             </div>
                         )}
 
-                        {/* Email & Password (පොදුයි) */}
+                        {/* Common Credentials (Email & Password) */}
                         <div>
                             <label className="block mb-1 text-sm font-medium text-gray-700">Email address</label>
                             <div className="relative">
