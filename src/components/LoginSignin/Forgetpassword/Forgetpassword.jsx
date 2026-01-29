@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Mail, ArrowLeft, RotateCcw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios'; // Required for making API requests to your backend
+import axios from 'axios';
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
@@ -9,23 +9,26 @@ const ForgotPassword = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Prevent page reload on form submission
+    e.preventDefault();
     setIsLoading(true);
 
     try {
-      // API call to your .NET AuthController
-      // Ensure the endpoint matches your backend route (e.g., api/Auth/forgot-password)
-      // const response = await axios.post('https://localhost:7118/api/Auth/forgot-password', { email });
-      
-      console.log("Requesting password reset for:", email);
-      
-      // On success, redirect the user to the OTP entry page
-      navigate('/enter-otp'); 
+      // Backend එකේ අපි හැදූ forgot-password endpoint එකට call කිරීම
+      const response = await axios.post('https://localhost:7118/api/Auth/forgot-password', { 
+        email: email 
+      });
+
+      if (response.status === 200) {
+        // සාර්ථක නම්, ඇතුළත් කළ email එකත් සමඟ OTP පිටුවට යන්න
+        // 'state' භාවිතයෙන් email එක යැවීමෙන් ඊළඟ පිටුවේදී එය භාවිතා කළ හැක
+        navigate('/enter-otp', { state: { email: email } });
+      }
     } catch (error) {
-      // Display error message if the email is not found or server is down
-      alert("Error: " + (error.response?.data?.message || error.message));
+      // Backend එකෙන් එන වැරදි පණිවිඩය පෙන්වීම (උදා: Email not found)
+      const errorMessage = error.response?.data?.message || "Something went wrong. Please try again.";
+      alert(errorMessage);
     } finally {
-      setIsLoading(false); // Re-enable the button
+      setIsLoading(false);
     }
   };
 
@@ -47,7 +50,6 @@ const ForgotPassword = () => {
       <main className="flex items-center justify-center flex-grow p-4">
         <div className="w-full max-w-md p-8 text-center bg-white border shadow-sm rounded-2xl border-slate-100">
           
-          {/* Visual Icon */}
           <div className="inline-flex items-center justify-center w-12 h-12 mb-4 text-blue-600 rounded-lg bg-blue-50">
             <RotateCcw size={24} />
           </div>
