@@ -57,10 +57,12 @@ function App() {
         {/* Company Routes */}
         <Route path="/company-dashboard" element={<Companydashbord/>} />
         <Route path="/companyNavbar" element={<CompanyNavbar/>} />
-        <Route path="/companypostaJob" element={<CompanypostaJob/>} />
+        <Route path="/companypostaJob/:id?" element={<CompanypostaJob/>} />
         <Route path="/companymanagejobs" element={<Companymanagejobs/>}/>
         <Route path="/companyapplication" element={<Companyapplication/>}/>
         <Route path="/companyprofile" element={<Companyprofile/>}/>
+
+
 
         {/* Admin Routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard/>} />
