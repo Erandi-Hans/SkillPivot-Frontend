@@ -1,13 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { ShieldCheck, ArrowLeft, ArrowRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const EnterOTP = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  
+  // Retrieve the email passed from the ForgotPassword page
+  const email = location.state?.email || "your email"; 
+  
   const [otp, setOtp] = useState(['', '', '', '']);
   const [timer, setTimer] = useState(29);
+  const [isLoading, setIsLoading] = useState(false);
 
-  // Timer logic for resending code
+  // Timer logic for the "Resend Code" button
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer(timer - 1), 1000);
@@ -15,13 +22,58 @@ const EnterOTP = () => {
     }
   }, [timer]);
 
+  // Handle input changes and auto-focus the next box
   const handleChange = (element, index) => {
     if (isNaN(element.value)) return false;
-    setOtp([...otp.map((d, idx) => (idx === index ? element.value : d))]);
 
-    // Focus next input
+    const newOtp = [...otp];
+    newOtp[index] = element.value;
+    setOtp(newOtp);
+
+    // Automatically move to the next input field
     if (element.nextSibling && element.value !== "") {
       element.nextSibling.focus();
+    }
+  };
+
+  // Function to verify OTP with the Backend
+  const handleVerify = async (e) => {
+    e.preventDefault();
+    const fullOtp = otp.join(""); // Combine the 4 digits into one string
+
+    if (fullOtp.length < 4) {
+      alert("Please enter the full 4-digit code.");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Call the .NET API verify-otp endpoint
+      const response = await axios.post('https://localhost:7118/api/Auth/verify-otp', {
+        email: email,
+        code: fullOtp
+      });
+
+      if (response.status === 200) {
+        // If successful, proceed to the reset-password page and pass the email
+        navigate('/reset-password', { state: { email: email } });
+      }
+    } catch (error) {
+      // Show error message from backend (e.g., Invalid or Expired code)
+      alert(error.response?.data?.message || "Invalid OTP code. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Function to resend the code (optional implementation)
+  const handleResend = async () => {
+    try {
+      await axios.post('https://localhost:7118/api/Auth/forgot-password', { email });
+      setTimer(59); // Reset timer to 1 minute
+      alert("A new code has been sent to your email.");
+    } catch (error) {
+      alert("Failed to resend code.");
     }
   };
 
@@ -43,7 +95,7 @@ const EnterOTP = () => {
       <main className="flex items-center justify-center flex-grow p-4">
         <div className="w-full max-w-md p-10 bg-white border shadow-sm rounded-3xl border-slate-100">
           
-          {/* Shield Icon */}
+          {/* Shield Icon Decoration */}
           <div className="flex justify-center mb-6">
             <div className="inline-flex items-center justify-center w-12 h-12 text-blue-600 rounded-xl bg-blue-50">
               <ShieldCheck size={24} />
@@ -52,11 +104,11 @@ const EnterOTP = () => {
 
           <h2 className="mb-2 text-2xl font-bold text-center text-slate-800">Enter OTP</h2>
           <p className="mb-8 text-sm text-center text-slate-500">
-            We've sent a 4-digit code to <span className="font-semibold text-slate-700">student@university.edu</span>. 
+            We've sent a 4-digit code to <span className="font-semibold text-slate-700">{email}</span>. 
             Please verify your identity.
           </p>
 
-          {/* OTP Inputs */}
+          {/* OTP Input Boxes */}
           <div className="flex justify-center gap-3 mb-6">
             {otp.map((data, index) => (
               <input
@@ -71,11 +123,13 @@ const EnterOTP = () => {
             ))}
           </div>
 
+          {/* Resend Logic */}
           <div className="mb-8 text-sm text-center">
             <p className="text-slate-500">
               Didn't receive code? 
               <button 
-                disabled={timer > 0}
+                onClick={handleResend}
+                disabled={timer > 0 || isLoading}
                 className={`ml-1 font-bold ${timer > 0 ? 'text-slate-300 cursor-not-allowed' : 'text-blue-600 hover:underline'}`}
               >
                 Resend Code
@@ -88,12 +142,14 @@ const EnterOTP = () => {
             )}
           </div>
 
-          {/* Action Buttons */}
+          {/* Final Action Buttons */}
           <div className="space-y-3">
             <button 
-              className="flex items-center justify-center w-full py-4 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-2xl hover:bg-blue-700 active:scale-95 shadow-blue-100"
+              onClick={handleVerify}
+              disabled={isLoading}
+              className={`flex items-center justify-center w-full py-4 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-2xl hover:bg-blue-700 active:scale-95 shadow-blue-100 ${isLoading ? 'opacity-50' : ''}`}
             >
-              Verify Code <ArrowRight size={18} className="ml-2" />
+              {isLoading ? 'Verifying...' : 'Verify Code'} <ArrowRight size={18} className="ml-2" />
             </button>
             <button 
               onClick={() => navigate('/signin')}

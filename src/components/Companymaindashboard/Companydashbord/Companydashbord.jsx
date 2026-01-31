@@ -1,19 +1,26 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios'; // Ensure axios is installed: npm install axios
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom'; // Added for page navigation
 import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
 import { Users, Briefcase, Clock, TrendingUp, Plus, Calendar, ArrowRight } from 'lucide-react';
 
 const Companydashbord = () => {
   // State to store the dynamic count of active jobs from the backend
   const [activeJobsCount, setActiveJobsCount] = useState(0);
+  
+  // Initialize navigation function
+  const navigate = useNavigate();
 
   // Fetch data from the API when the component mounts
   useEffect(() => {
-    // Calling the JobPosts API
+    // Calling the JobPosts API to get all records
     axios.get('https://localhost:7118/api/JobPosts')
       .then(res => {
-        // Update the state with the total number of jobs found in the database
-        setActiveJobsCount(res.data.length);
+        /** * Filter the data to count only jobs where status is "Active".
+         * This ensures the dashboard metric reflects real-time active listings.
+         */
+        const activeOnly = res.data.filter(job => job.status === "Active");
+        setActiveJobsCount(activeOnly.length);
       })
       .catch(err => {
         console.error("Error fetching job posts:", err);
@@ -50,7 +57,14 @@ const Companydashbord = () => {
               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Company Overview</h1>
               <p className="text-slate-500">Welcome back! Manage your recruitment and internships effectively.</p>
             </div>
-            <button className="flex items-center justify-center gap-2 px-6 py-3 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 active:scale-95 shadow-blue-200">
+            
+            {/* The button below triggers navigation to the job posting page.
+                Ensure the path '/post-a-job' matches your Route definition in App.js.
+            */}
+            <button 
+              onClick={() => navigate('/post-a-job')}
+              className="flex items-center justify-center gap-2 px-6 py-3 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 active:scale-95 shadow-blue-200"
+            >
               <Plus size={20} />
               Post New Internship
             </button>
@@ -114,7 +128,7 @@ const Companydashbord = () => {
               </div>
             </div>
 
-            {/* Quick Actions / Notifications Section */}
+            {/* Quick Insights Section */}
             <div>
               <h2 className="mb-4 text-xl font-bold text-slate-800">Quick Insights</h2>
               <div className="space-y-4">
