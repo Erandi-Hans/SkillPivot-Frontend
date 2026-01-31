@@ -62,7 +62,7 @@ const Companydashbord = () => {
                 Ensure the path '/post-a-job' matches your Route definition in App.js.
             */}
             <button 
-              onClick={() => navigate('/post-a-job')}
+              onClick={() => navigate('/companypostaJob')}
               className="flex items-center justify-center gap-2 px-6 py-3 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 active:scale-95 shadow-blue-200"
             >
               <Plus size={20} />
