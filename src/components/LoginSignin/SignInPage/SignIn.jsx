@@ -2,27 +2,29 @@ import React, { useState } from 'react';
 import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, EyeOff, Eye } from 'lucide-react';
 import axios from 'axios';
-import { useGoogleLogin } from '@react-oauth/google'; // Import the hook
+import { useGoogleLogin } from '@react-oauth/google'; 
 
 const SignIn = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  // Component states
   const [selectedRole, setSelectedRole] = useState(searchParams.get('role') || 'Internship Seeker');
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState(''); 
 
-  // --- GOOGLE LOGIN LOGIC ---
+  const redirectUser = (role) => {
+    if (role === 'Admin') navigate('/admin-dashboard');
+    else if (role === 'Company') navigate('/company-dashboard');
+    else navigate('/student-dashboard');
+  };
+
+  // --- GOOGLE LOGIN ---
   const googleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
-      setError(''); // Clear errors
-      console.log("Google Token Received:", tokenResponse.access_token);
-      
+      setError(''); 
       try {
-        // Send the Google Access Token to your ASP.NET Backend
         const response = await axios.post('https://localhost:7118/api/Auth/google-login', {
           token: tokenResponse.access_token
         });
@@ -30,31 +32,27 @@ const SignIn = () => {
         if (response.status === 200) {
           const userData = response.data;
 
-          // Check if the Google account's role matches the selected tab
           if (userData.role !== selectedRole) {
             setError(`Access Denied: This account is registered as a ${userData.role}.`);
             return;
           }
 
-          // Save to local storage and redirect
+          // Saving data
           localStorage.setItem('user', JSON.stringify(userData));
+          if (userData.companyId) {
+            localStorage.setItem('companyId', userData.companyId);
+          }
+
           redirectUser(userData.role);
         }
       } catch (err) {
-        setError(err.response?.data?.message || "Google Authentication failed. Is the account registered?");
+        setError(err.response?.data?.message || "Google Authentication failed.");
       }
     },
-    onError: () => setError("Google Sign-In was unsuccessful. Try again."),
+    onError: () => setError("Google Sign-In was unsuccessful."),
   });
 
-  // Helper function to handle navigation
-  const redirectUser = (role) => {
-    if (role === 'Admin') navigate('/admin-dashboard');
-    else if (role === 'Company') navigate('/company-dashboard');
-    else navigate('/student-dashboard');
-  };
-
-  // --- EMAIL/PASSWORD LOGIN LOGIC ---
+  // --- EMAIL/PASSWORD LOGIN (Fixed Logic) ---
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
@@ -66,15 +64,24 @@ const SignIn = () => {
       });
 
       if (response.status === 200) {
-        const userData = response.data;
+        const responseData = response.data; 
 
-        if (userData.role !== selectedRole) {
-          setError(`Access Denied: This account is registered as a ${userData.role}.`);
+        // 1. Role එක Check කරනවා (Tab එකේ තෝරපු එකමද කියලා)
+        if (responseData.role !== selectedRole) {
+          setError(`Access Denied: This account is registered as a ${responseData.role}.`);
           return;
         }
 
-        localStorage.setItem('user', JSON.stringify(userData));
-        redirectUser(userData.role);
+        // 2. මුළු Object එකම 'user' ලෙස Save කරනවා (කලින් ඔයා කරපු විදිහ)
+        localStorage.setItem('user', JSON.stringify(responseData.user));
+        
+        // 3. Company ID එක තියෙනවා නම් ඒක වෙනම Save කරනවා Profile එකට ගන්න
+        if (responseData.companyId) {
+          localStorage.setItem('companyId', responseData.companyId);
+        }
+
+        // 4. Redirect කරනවා
+        redirectUser(responseData.role);
       }
     } catch (err) {
       setError(err.response?.data?.message || "Invalid Email or Password. Try again.");
@@ -98,7 +105,6 @@ const SignIn = () => {
           </div>
         )}
 
-        {/* Role Selector Tabs */}
         <div className="flex p-1 mt-8 mb-8 bg-gray-100 rounded-2xl">
           {['Company', 'Internship Seeker', 'Admin'].map((role) => (
             <label key={role} className="flex-1 cursor-pointer">
@@ -111,7 +117,6 @@ const SignIn = () => {
           ))}
         </div>
 
-        {/* EMAIL FORM */}
         <form onSubmit={handleSignIn} className="space-y-5">
           <div className="space-y-2">
             <label className="text-sm font-semibold text-gray-700">Email address</label>
@@ -150,7 +155,6 @@ const SignIn = () => {
           <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gray-100"></div>
         </div>
 
-        {/* UPDATED GOOGLE BUTTON */}
         <button 
           type="button"
           onClick={() => googleLogin()} 
