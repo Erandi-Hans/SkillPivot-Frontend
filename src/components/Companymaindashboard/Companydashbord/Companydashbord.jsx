@@ -1,37 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom'; // Added for page navigation
+import { useNavigate } from 'react-router-dom';
 import CompanyNavbar from '../Maincompo/Companynavbar/Companynavbar.jsx';
 import { Users, Briefcase, Clock, TrendingUp, Plus, Calendar, ArrowRight } from 'lucide-react';
 
 const Companydashbord = () => {
-  // State to store the dynamic count of active jobs from the backend
+  // State to manage the dynamic count of active jobs fetched from the database
   const [activeJobsCount, setActiveJobsCount] = useState(0);
   
-  // Initialize navigation function
+  // Hook to handle programmatic navigation between routes
   const navigate = useNavigate();
 
-  // Fetch data from the API when the component mounts
+  // Effect hook to fetch data from the API as soon as the component mounts
   useEffect(() => {
-    // Calling the JobPosts API to get all records
+    // GET request to retrieve all job post records
     axios.get('https://localhost:7118/api/JobPosts')
       .then(res => {
-        /** * Filter the data to count only jobs where status is "Active".
-         * This ensures the dashboard metric reflects real-time active listings.
+        /** * Filter logic: We only count jobs where the status is "Active".
+         * We check for both lowercase 'status' and uppercase 'Status' 
+         * to prevent issues with different C# JSON naming policies.
          */
-        const activeOnly = res.data.filter(job => job.status === "Active");
+        const activeOnly = res.data.filter(job => 
+          job.status === "Active" || job.Status === "Active"
+        );
+        
+        // Update state with the count of filtered active jobs
         setActiveJobsCount(activeOnly.length);
       })
       .catch(err => {
-        console.error("Error fetching job posts:", err);
+        // Log any errors related to API connectivity or data fetching
+        console.error("Fetch Error:", err);
       });
   }, []);
 
-  // Statistical data for the overview metric cards
+  // Configuration array for dashboard metric cards
   const stats = [
     { 
       label: 'Active Jobs', 
-      // Displaying the dynamic count. padStart ensures it looks like '01', '08' etc.
+      // Formatting the number to always show at least two digits (e.g., 01, 05)
       value: activeJobsCount.toString().padStart(2, '0'), 
       icon: Briefcase, 
       color: 'text-blue-600', 
@@ -44,23 +50,19 @@ const Companydashbord = () => {
 
   return (
     <div className="min-h-screen bg-slate-100">
-      {/* Navigation Bar component */}
+      {/* Shared Navigation Component */}
       <CompanyNavbar />
 
       <main className="container px-4 py-8 mx-auto max-w-7xl">
-        {/* Main White Dashboard Container */}
+        {/* Main Dashboard Surface */}
         <div className="p-8 bg-white border shadow-md rounded-3xl border-slate-200">
           
-          {/* Header Section with Title and Action Button */}
+          {/* Header Section: Title and Primary Action */}
           <div className="flex flex-col gap-4 mb-8 md:flex-row md:items-center md:justify-between">
             <div>
               <h1 className="text-3xl font-bold tracking-tight text-slate-900">Company Overview</h1>
               <p className="text-slate-500">Welcome back! Manage your recruitment and internships effectively.</p>
             </div>
-            
-            {/* The button below triggers navigation to the job posting page.
-                Ensure the path '/post-a-job' matches your Route definition in App.js.
-            */}
             <button 
               onClick={() => navigate('/companypostaJob')}
               className="flex items-center justify-center gap-2 px-6 py-3 font-bold text-white transition-all bg-blue-600 shadow-lg rounded-xl hover:bg-blue-700 active:scale-95 shadow-blue-200"
@@ -70,7 +72,7 @@ const Companydashbord = () => {
             </button>
           </div>
 
-          {/* Metrics Grid Section */}
+          {/* Statistics Grid: Mapping through the stats array to render metric cards */}
           <div className="grid grid-cols-1 gap-6 mb-10 sm:grid-cols-2 lg:grid-cols-4">
             {stats.map((stat, index) => {
               const IconComponent = stat.icon;
@@ -90,10 +92,10 @@ const Companydashbord = () => {
             })}
           </div>
 
-          {/* Bottom Content Area: Split into Recent Activity and Upcoming Tasks */}
+          {/* Lower Dashboard Section: Application Table and Side Insights */}
           <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
             
-            {/* Recent Applicants Table (Spans 2 columns) */}
+            {/* Recent Applications Table */}
             <div className="lg:col-span-2">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-bold text-slate-800">Recent Applications</h2>
@@ -109,6 +111,7 @@ const Companydashbord = () => {
                     </tr>
                   </thead>
                   <tbody className="text-sm divide-y divide-slate-100">
+                    {/* Placeholder static data for demonstration */}
                     <tr className="transition-colors hover:bg-slate-50/50">
                       <td className="px-6 py-4 font-medium text-slate-700">Alex Perera</td>
                       <td className="px-6 py-4 text-slate-500">Full Stack Intern</td>
@@ -128,7 +131,7 @@ const Companydashbord = () => {
               </div>
             </div>
 
-            {/* Quick Insights Section */}
+            {/* Quick Insights Sidebar */}
             <div>
               <h2 className="mb-4 text-xl font-bold text-slate-800">Quick Insights</h2>
               <div className="space-y-4">
@@ -146,7 +149,8 @@ const Companydashbord = () => {
                     </div>
                   </div>
                 </div>
-
+                
+                {/* Recruitment Tip Card */}
                 <div className="p-4 border border-slate-100 bg-slate-50 rounded-2xl">
                   <p className="text-xs italic text-slate-400">
                     Pro Tip: Highlight your technology stack (MERN, .NET, etc.) to match with specific student profiles.
