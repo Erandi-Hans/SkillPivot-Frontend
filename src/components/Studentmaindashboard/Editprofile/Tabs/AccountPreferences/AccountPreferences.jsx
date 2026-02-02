@@ -4,7 +4,7 @@ import { ChevronRight, ChevronDown } from 'lucide-react';
 
 /**
  * SettingRow Component
- * Renders an expandable section for profile settings.
+ * Renders an expandable accordion section for various profile settings.
  */
 const SettingRow = ({ id, title, value, children, openSection, toggleSection }) => (
   <div className="border-b border-gray-100 last:border-0">
@@ -16,7 +16,7 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
         <p className="text-[15px] font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
           {title}
         </p>
-        {/* Display current value only when section is collapsed */}
+        {/* Only display the preview value when the section is collapsed */}
         {openSection !== id && value && (
           <p className="text-sm text-gray-500 mt-0.5">{value}</p>
         )}
@@ -26,7 +26,7 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
       </span>
     </div>
 
-    {/* Expanded view content */}
+    {/* Expanded view content with a fade-in animation */}
     {openSection === id && (
       <div className="p-5 my-2 border border-gray-100 rounded-lg bg-gray-50 animate-fadeIn">
         {children}
@@ -38,9 +38,9 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
 const AccountPreferences = () => {
   // --- STATE MANAGEMENT ---
   const [openSection, setOpenSection] = useState(null);
-  const userId = localStorage.getItem('userId'); // Retrieve stored ID from login
+  const userId = localStorage.getItem('userId'); // Retrieve unique identifier stored during login
 
-  // Profile data state matching backend model keys exactly
+  // State object to hold profile data, initialized with empty strings to avoid uncontrolled input warnings
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -55,30 +55,30 @@ const AccountPreferences = () => {
   // --- API OPERATIONS ---
 
   /**
-   * Fetch user data on component load based on stored userId.
+   * Fetches user profile data from the server upon component mounting.
    */
   useEffect(() => {
     const fetchUserData = async () => {
       if (!userId) {
-        console.warn("No userId found. Please log in.");
+        console.warn("No userId found in Local Storage. Redirection to login might be required.");
         return;
       }
       
       try {
-        // Fetching from the Users endpoint verified in Swagger
+        // GET request to retrieve user data by ID
         const response = await axios.get(`https://localhost:7118/api/Users/${userId}`);
         const data = response.data;
         
-        // Mapping Backend PascalCase keys to Frontend camelCase state
+        // Mapping Backend keys (handling both PascalCase and camelCase) to Frontend state
         setProfileData({
-          firstName: data.Firstname || '',
-          lastName: data.Lastname || '',
-          location: data.Location || '',
-          industry: data.Industry || '',
-          email: data.Email || ''
+          firstName: data.firstname || data.Firstname || '',
+          lastName: data.lastname || data.Lastname || '',
+          location: data.location || data.Location || '',
+          industry: data.industry || data.Industry || '',
+          email: data.email || data.Email || ''
         });
       } catch (error) {
-        console.error("Failed to load user profile:", error);
+        console.error("API Error: Failed to retrieve user profile data:", error);
       }
     };
 
@@ -86,17 +86,19 @@ const AccountPreferences = () => {
   }, [userId]);
 
   /**
-   * Toggle between accordion sections.
+   * Handles the expansion and collapse logic for setting sections.
+   * @param {string} id - The ID of the section to toggle.
    */
   const toggleSection = (id) => {
     setOpenSection(openSection === id ? null : id);
   };
 
   /**
-   * Submit updated profile data to the backend via PUT request.
+   * Submits the updated profile details to the backend via a PUT request.
    */
   const handleSave = async () => {
     try {
+      // Create a payload that strictly matches the Backend User model keys
       const updatePayload = {
         UserId: parseInt(userId),
         Firstname: profileData.firstName,
@@ -106,19 +108,19 @@ const AccountPreferences = () => {
         Email: profileData.email
       };
 
-      // Put request to the specific User ID
+      // Perform the update operation via API
       await axios.put(`https://localhost:7118/api/Users/${userId}`, updatePayload);
       
-      alert("Profile updated successfully!");
-      setOpenSection(null);
+      alert("Success: Profile information updated successfully!");
+      setOpenSection(null); // Collapse the section after a successful save
     } catch (error) {
-      console.error("Update failed:", error);
-      alert("Error saving changes. Please check your connection.");
+      console.error("Network/API Error: Update operation failed:", error);
+      alert("Error: Unable to save changes. Please verify your connection.");
     }
   };
 
   /**
-   * Handle changes for all text input fields.
+   * General change handler for all text input fields to synchronize with local state.
    */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -127,7 +129,7 @@ const AccountPreferences = () => {
 
   return (
     <div className="max-w-2xl pb-10 mx-auto space-y-6">
-      {/* Profile Section */}
+      {/* Profile Information Card */}
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
           <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile Information</h2>
@@ -140,8 +142,9 @@ const AccountPreferences = () => {
               toggleSection={toggleSection}
             >
               <div className="space-y-4">
-                <p className="text-sm text-gray-600">Edit your public profile identifiers.</p>
+                <p className="text-sm text-gray-600">Modify your basic profile identifiers used across the platform.</p>
                 
+                {/* Inputs for Name */}
                 <div className="grid grid-cols-2 gap-4">
                   <input 
                     name="firstName"
@@ -161,11 +164,12 @@ const AccountPreferences = () => {
                   />
                 </div>
 
+                {/* Inputs for Demographic info */}
                 <div className="grid grid-cols-2 gap-4">
                   <input 
                     name="location"
                     type="text" 
-                    placeholder="Location (e.g. Colombo)" 
+                    placeholder="Location (e.g. Colombo, Sri Lanka)" 
                     value={profileData.location}
                     onChange={handleInputChange}
                     className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
@@ -173,13 +177,14 @@ const AccountPreferences = () => {
                   <input 
                     name="industry"
                     type="text" 
-                    placeholder="Industry (e.g. Software)" 
+                    placeholder="Industry (e.g. Software Engineering)" 
                     value={profileData.industry}
                     onChange={handleInputChange}
                     className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" 
                   />
                 </div>
 
+                {/* Save Trigger */}
                 <button 
                   onClick={handleSave} 
                   className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
@@ -189,13 +194,14 @@ const AccountPreferences = () => {
               </div>
             </SettingRow>
 
+            {/* Placeholder Rows for future implementation */}
             <SettingRow id="demo" title="Personal Demographic Information" openSection={openSection} toggleSection={toggleSection} />
             <SettingRow id="verif" title="Verifications" openSection={openSection} toggleSection={toggleSection} />
           </div>
         </div>
       </section>
 
-      {/* Preferences Footer */}
+      {/* Footer Navigation */}
       <div className="flex flex-wrap justify-center gap-4 py-6 text-xs text-gray-500">
         <span className="cursor-pointer hover:underline">Help Center</span>
         <span className="cursor-pointer hover:underline">Privacy Policy</span>
