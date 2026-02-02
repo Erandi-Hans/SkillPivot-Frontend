@@ -26,7 +26,8 @@ const Companyprofile = () => {
 
   /**
    * 1. Fetch Company Data on Component Mount
-   * Retrieves existing profile details from the backend using the companyId.
+   * Retrieves existing profile details from the backend.
+   * Handles both camelCase and PascalCase from API response.
    */
   useEffect(() => {
     const fetchCompanyData = async () => {
@@ -41,20 +42,30 @@ const Companyprofile = () => {
         const response = await axios.get(`https://localhost:7118/api/Companies/${companyId}`);
         const data = response.data;
 
-        // Map backend response to state (ensure keys match backend DTO)
+        // Map backend response to state (Handling both lowercase and uppercase keys)
         setFormData({
-          CompanyName: data.companyName || '',
-          Industry: data.industry || '',
-          Description: data.description || '',
-          Website: data.website || '',
-          ContactEmail: data.contactEmail || '',
-          Location: data.location || ''
+          CompanyName: data.companyName || data.CompanyName || '',
+          Industry: data.industry || data.Industry || '',
+          Description: data.description || data.Description || '',
+          Website: data.website || data.Website || '',
+          ContactEmail: data.contactEmail || data.ContactEmail || '',
+          Location: data.location || data.Location || ''
         });
 
-        // Construct absolute URL for the logo if a path exists
-        if (data.logoUrl) {
-          setImagePreview(`https://localhost:7118${data.logoUrl}`);
+        // Set logo preview if URL exists in DB
+        const logoPath = data.logoUrl || data.LogoUrl;
+        if (logoPath) {
+          const fullLogoUrl = `https://localhost:7118${logoPath}`;
+          setImagePreview(fullLogoUrl);
+          // Sync with Navbar storage
+          localStorage.setItem('companyLogo', fullLogoUrl);
         }
+
+        // Sync name with Navbar storage
+        if (data.companyName || data.CompanyName) {
+          localStorage.setItem('companyName', data.companyName || data.CompanyName);
+        }
+
       } catch (error) {
         console.error("Error fetching profile details:", error);
       } finally {
@@ -75,7 +86,6 @@ const Companyprofile = () => {
 
   /**
    * 3. Handle File Selection for Logo
-   * Generates a local preview URL before uploading to the server.
    */
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -83,7 +93,7 @@ const Companyprofile = () => {
       setSelectedFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result); // Base64 preview for instant UI feedback
+        setImagePreview(reader.result); // Base64 preview for UI
       };
       reader.readAsDataURL(file);
     }
@@ -91,14 +101,14 @@ const Companyprofile = () => {
 
   /**
    * 4. Save/Update Profile Logic
-   * Uses FormData to handle both text fields and the image file (multipart/form-data).
+   * Updates Database and refreshes LocalStorage for Navbar consistency.
    */
   const handleSave = async () => {
     try {
       setIsSaving(true);
       const dataToSend = new FormData();
       
-      // Append text data
+      // Append text data to FormData
       dataToSend.append('CompanyName', formData.CompanyName);
       dataToSend.append('Industry', formData.Industry);
       dataToSend.append('Description', formData.Description);
@@ -106,25 +116,37 @@ const Companyprofile = () => {
       dataToSend.append('ContactEmail', formData.ContactEmail);
       dataToSend.append('Location', formData.Location);
       
-      // Append image file if a new one was selected
+      // Append file if a new logo is picked
       if (selectedFile) {
         dataToSend.append('Logo', selectedFile);
       }
 
-      await axios.put(`https://localhost:7118/api/Companies/${companyId}`, dataToSend, {
+      const response = await axios.put(`https://localhost:7118/api/Companies/${companyId}`, dataToSend, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
 
+      // Update LocalStorage so Navbar reflects changes immediately
+      localStorage.setItem('companyName', formData.CompanyName);
+      
+      // Update logo URL if backend returns the new path
+      const newLogoPath = response.data.logoUrl || response.data.LogoUrl;
+      if (newLogoPath) {
+        localStorage.setItem('companyLogo', `https://localhost:7118${newLogoPath}`);
+      }
+
       alert("Profile updated successfully!");
+      
+      // Reload to ensure all components (like Navbar) sync up
+      window.location.reload();
+
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert(error.response?.data?.message || "Failed to update profile. Please check your connection.");
+      alert(error.response?.data?.message || "Failed to update profile.");
     } finally {
       setIsSaving(false);
     }
   };
 
-  // Render loading spinner while data is being fetched
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen gap-4 bg-slate-50">
@@ -189,7 +211,6 @@ const Companyprofile = () => {
 
             {/* Information Form Section */}
             <div className="space-y-8 lg:col-span-2">
-              {/* General Details */}
               <div className="space-y-4">
                 <h2 className="flex items-center gap-2 text-lg font-bold text-slate-800">
                   General Information
@@ -210,7 +231,6 @@ const Companyprofile = () => {
                 </div>
               </div>
 
-              {/* Contact Information */}
               <div className="space-y-4">
                 <h2 className="text-lg font-bold text-slate-800">Communication & Presence</h2>
                 <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
