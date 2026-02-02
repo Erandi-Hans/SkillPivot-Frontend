@@ -1,7 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import { ChevronRight, ChevronDown } from 'lucide-react';
 
-// SettingRow Component
+/**
+ * SettingRow Component
+ * Renders an expandable section for profile settings.
+ */
 const SettingRow = ({ id, title, value, children, openSection, toggleSection }) => (
   <div className="border-b border-gray-100 last:border-0">
     <div 
@@ -12,6 +16,7 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
         <p className="text-[15px] font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
           {title}
         </p>
+        {/* Display current value only when section is collapsed */}
         {openSection !== id && value && (
           <p className="text-sm text-gray-500 mt-0.5">{value}</p>
         )}
@@ -21,7 +26,7 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
       </span>
     </div>
 
-    {/* විවෘත වන කොටස */}
+    {/* Expanded view content */}
     {openSection === id && (
       <div className="p-5 my-2 border border-gray-100 rounded-lg bg-gray-50 animate-fadeIn">
         {children}
@@ -31,28 +36,90 @@ const SettingRow = ({ id, title, value, children, openSection, toggleSection }) 
 );
 
 const AccountPreferences = () => {
+  // --- STATE MANAGEMENT ---
   const [openSection, setOpenSection] = useState(null);
-  
-  // Form States
+  const userId = localStorage.getItem('userId'); // Retrieve stored ID from login
+
+  // Profile data state matching backend model keys exactly
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
     location: '',
-    industry: ''
+    industry: '',
+    email: ''
   });
+
   const [darkMode, setDarkMode] = useState("Off");
   const [language, setLanguage] = useState("English");
 
+  // --- API OPERATIONS ---
+
+  /**
+   * Fetch user data on component load based on stored userId.
+   */
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (!userId) {
+        console.warn("No userId found. Please log in.");
+        return;
+      }
+      
+      try {
+        // Fetching from the Users endpoint verified in Swagger
+        const response = await axios.get(`https://localhost:7118/api/Users/${userId}`);
+        const data = response.data;
+        
+        // Mapping Backend PascalCase keys to Frontend camelCase state
+        setProfileData({
+          firstName: data.Firstname || '',
+          lastName: data.Lastname || '',
+          location: data.Location || '',
+          industry: data.Industry || '',
+          email: data.Email || ''
+        });
+      } catch (error) {
+        console.error("Failed to load user profile:", error);
+      }
+    };
+
+    fetchUserData();
+  }, [userId]);
+
+  /**
+   * Toggle between accordion sections.
+   */
   const toggleSection = (id) => {
     setOpenSection(openSection === id ? null : id);
   };
 
-  const handleSave = () => {
-    // දත්ත Save කිරීමේ logic එක මෙතැනට ඇතුළත් කළ හැකිය
-    console.log("Saving data...", { profileData, darkMode, language });
-    setOpenSection(null);
+  /**
+   * Submit updated profile data to the backend via PUT request.
+   */
+  const handleSave = async () => {
+    try {
+      const updatePayload = {
+        UserId: parseInt(userId),
+        Firstname: profileData.firstName,
+        Lastname: profileData.lastName,
+        Location: profileData.location,
+        Industry: profileData.industry,
+        Email: profileData.email
+      };
+
+      // Put request to the specific User ID
+      await axios.put(`https://localhost:7118/api/Users/${userId}`, updatePayload);
+      
+      alert("Profile updated successfully!");
+      setOpenSection(null);
+    } catch (error) {
+      console.error("Update failed:", error);
+      alert("Error saving changes. Please check your connection.");
+    }
   };
 
+  /**
+   * Handle changes for all text input fields.
+   */
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
@@ -60,23 +127,21 @@ const AccountPreferences = () => {
 
   return (
     <div className="max-w-2xl pb-10 mx-auto space-y-6">
-      
-      {/* SECTION 1: Profile Information */}
+      {/* Profile Section */}
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile information</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile Information</h2>
           <div className="flex flex-col">
             <SettingRow 
               id="name-loc" 
-              title="Name, location, and industry" 
+              title="Name, Location, and Industry" 
               value={`${profileData.firstName} ${profileData.lastName}`}
               openSection={openSection} 
               toggleSection={toggleSection}
             >
               <div className="space-y-4">
-                <p className="text-sm text-gray-600">Update your basic profile identifiers.</p>
+                <p className="text-sm text-gray-600">Edit your public profile identifiers.</p>
                 
-                {/* Name Fields */}
                 <div className="grid grid-cols-2 gap-4">
                   <input 
                     name="firstName"
@@ -96,7 +161,6 @@ const AccountPreferences = () => {
                   />
                 </div>
 
-                {/* Location and Industry Fields - අලුතින් එක් කරන ලදී */}
                 <div className="grid grid-cols-2 gap-4">
                   <input 
                     name="location"
@@ -116,82 +180,25 @@ const AccountPreferences = () => {
                   />
                 </div>
 
-                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700">
-                  Save
+                <button 
+                  onClick={handleSave} 
+                  className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors"
+                >
+                  Save Changes
                 </button>
               </div>
             </SettingRow>
 
-            <SettingRow id="demo" title="Personal demographic information" openSection={openSection} toggleSection={toggleSection} />
+            <SettingRow id="demo" title="Personal Demographic Information" openSection={openSection} toggleSection={toggleSection} />
             <SettingRow id="verif" title="Verifications" openSection={openSection} toggleSection={toggleSection} />
           </div>
         </div>
       </section>
 
-      {/* SECTION 2: Display */}
-      <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-        <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Display</h2>
-          <SettingRow 
-            id="darkmode" 
-            title="Dark mode" 
-            value={darkMode}
-            openSection={openSection} 
-            toggleSection={toggleSection}
-          >
-            <div className="space-y-3">
-              {["On", "Off"].map((opt) => (
-                <label key={opt} className="flex items-center space-x-3 cursor-pointer">
-                  <input 
-                    type="radio" 
-                    checked={darkMode === opt} 
-                    onChange={() => setDarkMode(opt)}
-                    className="w-4 h-4 text-blue-600"
-                  />
-                  <span className="text-gray-700">{opt}</span>
-                </label>
-              ))}
-              <button onClick={handleSave} className="mt-2 px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold">Save</button>
-            </div>
-          </SettingRow>
-        </div>
-      </section>
-
-      {/* SECTION 3: General Preferences */}
-      <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-        <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">General preferences</h2>
-          <div className="flex flex-col">
-            <SettingRow 
-              id="lang" 
-              title="Language" 
-              value={language}
-              openSection={openSection} 
-              toggleSection={toggleSection}
-            >
-              <select 
-                value={language} 
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full p-2 bg-white border border-gray-300 rounded-md outline-none"
-              >
-                <option>English</option>
-                <option>Sinhala</option>
-                <option>Tamil</option>
-              </select>
-              <button onClick={handleSave} className="mt-4 px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold">Update Language</button>
-            </SettingRow>
-            
-            <SettingRow id="content-lang" title="Content language" value="English" openSection={openSection} toggleSection={toggleSection} />
-            <SettingRow id="autoplay" title="Autoplay videos" value="On" openSection={openSection} toggleSection={toggleSection} />
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
+      {/* Preferences Footer */}
       <div className="flex flex-wrap justify-center gap-4 py-6 text-xs text-gray-500">
         <span className="cursor-pointer hover:underline">Help Center</span>
         <span className="cursor-pointer hover:underline">Privacy Policy</span>
-        <span className="cursor-pointer hover:underline">Accessibility</span>
         <span className="cursor-pointer hover:underline">User Agreement</span>
       </div>
     </div>
