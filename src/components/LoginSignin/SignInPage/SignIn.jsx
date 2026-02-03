@@ -37,8 +37,11 @@ const SignIn = () => {
             return;
           }
 
-          // Saving data
+          // --- Storing Identity Data ---
+          // Explicitly storing userId for AccountPreferences page use
+          localStorage.setItem('userId', userData.userId);
           localStorage.setItem('user', JSON.stringify(userData));
+          
           if (userData.companyId) {
             localStorage.setItem('companyId', userData.companyId);
           }
@@ -52,7 +55,7 @@ const SignIn = () => {
     onError: () => setError("Google Sign-In was unsuccessful."),
   });
 
-  // --- EMAIL/PASSWORD LOGIN (Fixed Logic) ---
+  // --- EMAIL/PASSWORD LOGIN ---
   const handleSignIn = async (e) => {
     e.preventDefault();
     setError('');
@@ -66,21 +69,26 @@ const SignIn = () => {
       if (response.status === 200) {
         const responseData = response.data; 
 
-        // 1. Role එක Check කරනවා (Tab එකේ තෝරපු එකමද කියලා)
+        // 1. Role Validation
         if (responseData.role !== selectedRole) {
           setError(`Access Denied: This account is registered as a ${responseData.role}.`);
           return;
         }
 
-        // 2. මුළු Object එකම 'user' ලෙස Save කරනවා (කලින් ඔයා කරපු විදිහ)
+        // 2. Storing necessary identifiers for global use
+        // Extracting userId from the nested user object or root response
+        const idToStore = responseData.user?.userId || responseData.userId;
+        localStorage.setItem('userId', idToStore);
+
+        // 3. Storing full user object
         localStorage.setItem('user', JSON.stringify(responseData.user));
         
-        // 3. Company ID එක තියෙනවා නම් ඒක වෙනම Save කරනවා Profile එකට ගන්න
+        // 4. Storing Company ID if applicable
         if (responseData.companyId) {
           localStorage.setItem('companyId', responseData.companyId);
         }
 
-        // 4. Redirect කරනවා
+        // 5. Navigation
         redirectUser(responseData.role);
       }
     } catch (err) {
