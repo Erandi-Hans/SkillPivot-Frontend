@@ -32,7 +32,6 @@ const AccountPreferences = () => {
   const [openSection, setOpenSection] = useState(null);
   const userId = localStorage.getItem('userId'); 
 
-  // State management for all profile fields including User, Student, and Demographics
   const [profileData, setProfileData] = useState({
     firstName: '',
     lastName: '',
@@ -43,89 +42,96 @@ const AccountPreferences = () => {
     degree: '',
     gpa: '',
     skills: '',
-    gender: '', // New demographic field
-    isVerified: false // New verification status
+    gender: '', 
+    isVerified: false 
   });
 
   const [selectedFile, setSelectedFile] = useState(null);
 
   useEffect(() => {
     const fetchUserData = async () => {
-      if (!userId || userId === "null") {
-        console.warn("No userId found in Local Storage.");
-        return;
-      }
+      if (!userId || userId === "null") return;
       
       try {
-        // Fetch basic user and student details from the backend
         const userResponse = await axios.get(`https://localhost:7118/api/Users/${userId}`);
         const userData = userResponse.data;
 
+        let studentData = {};
         try {
-            const studentResponse = await axios.get(`https://localhost:7118/api/Students/user/${userId}`);
-            const studentData = studentResponse.data;
-            
-            setProfileData({
-                firstName: userData.firstname || '',
-                lastName: userData.lastname || '',
-                location: userData.location || '',
-                industry: userData.industry || '',
-                email: userData.email || '',
-                university: studentData.university || '',
-                degree: studentData.degree || '',
-                gpa: studentData.gpa || '',
-                skills: studentData.skills || '',
-                gender: userData.gender || '', // Assuming gender is stored in Users table
-                isVerified: userData.isVerified || false
-            });
+          const studentResponse = await axios.get(`https://localhost:7118/api/Students/user/${userId}`);
+          studentData = studentResponse.data;
         } catch (studentErr) {
-            console.log("Student profile details not found.");
+          if (studentErr.response && studentErr.response.status === 404) {
+            // Auto-create missing student profile
+            const newStudentPayload = {
+              UserId: parseInt(userId),
+              University: "",
+              Degree: "",
+              GPA: "",
+              Skills: "",
+              Gender: "",
+              IsVerified: false,
+              NicDocumentPath: ""
+            };
+            const createRes = await axios.post(`https://localhost:7118/api/Students`, newStudentPayload);
+            studentData = createRes.data;
+          }
         }
 
+        setProfileData({
+          firstName: userData.firstname || userData.Firstname || '',
+          lastName: userData.lastname || userData.Lastname || '',
+          location: userData.location || userData.Location || '',
+          industry: userData.industry || userData.Industry || '',
+          email: userData.email || userData.Email || '',
+          university: studentData.university || studentData.University || '',
+          degree: studentData.degree || studentData.Degree || '',
+          gpa: studentData.gpa || studentData.GPA || '',
+          skills: studentData.skills || studentData.Skills || '',
+          gender: studentData.gender || studentData.Gender || '', 
+          isVerified: studentData.isVerified || studentData.IsVerified || false
+        });
+
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.error("Fetch error:", error);
       }
     };
 
     fetchUserData();
   }, [userId]);
 
-  const toggleSection = (id) => {
-    setOpenSection(openSection === id ? null : id);
-  };
-
-  // Function to handle all profile updates
   const handleSave = async () => {
     if (!userId) return;
 
     try {
-      // Payload for general user information
+      // .NET API එක බලාපොරොත්තු වන PascalCase Payload එක
       const userPayload = {
         UserId: parseInt(userId),
         Firstname: profileData.firstName,
         Lastname: profileData.lastName,
         Location: profileData.location,
         Industry: profileData.industry,
-        Email: profileData.email,
-        Gender: profileData.gender
+        Email: profileData.email
       };
       await axios.put(`https://localhost:7118/api/Users/${userId}`, userPayload);
 
-      // Payload for student-specific academic information
       const studentPayload = {
         UserId: parseInt(userId),
         University: profileData.university,
         Degree: profileData.degree,
         GPA: profileData.gpa,
-        Skills: profileData.skills
+        Skills: profileData.skills,
+        Gender: profileData.gender,
+        IsVerified: profileData.isVerified,
+        NicDocumentPath: "" // අනිවාර්යයෙන්ම හිස් string එකක් හෝ අගයක් යැවිය යුතුයි
       };
       await axios.put(`https://localhost:7118/api/Students/user/${userId}`, studentPayload);
       
-      alert("Success: Your profile has been updated!");
+      alert("පැතිකඩ සාර්ථකව යාවත්කාලීන කරන ලදී!");
       setOpenSection(null);
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      alert("Error: Changes could not be saved.");
+      console.error("Save error:", error);
+      alert("දත්ත සුරැකීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.");
     }
   };
 
@@ -134,115 +140,40 @@ const AccountPreferences = () => {
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    setSelectedFile(e.target.files[0]);
-  };
-
-  // Mock function for NIC/ID verification upload
-  const handleVerifyUpload = () => {
-    if(selectedFile) {
-        alert(`File "${selectedFile.name}" uploaded successfully for verification!`);
-        // Logic to send file to backend would go here
-    } else {
-        alert("Please select a file first.");
-    }
-  };
-
   return (
     <div className="max-w-2xl pb-10 mx-auto space-y-6">
       <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
         <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">Profile Information</h2>
+          <h2 className="mb-4 text-lg font-semibold text-gray-900">පැතිකඩ සැකසුම්</h2>
           <div className="flex flex-col">
             
-            {/* 1. Basic Info Section */}
             <SettingRow 
               id="name-loc" 
-              title="Name, Location, and Industry" 
+              title="නම සහ ලිපිනය" 
               value={`${profileData.firstName} ${profileData.lastName}`}
               openSection={openSection} 
-              toggleSection={toggleSection}
+              toggleSection={setOpenSection}
             >
               <div className="space-y-4">
                 <div className="grid grid-cols-2 gap-4">
-                  <input name="firstName" type="text" placeholder="First Name" value={profileData.firstName} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                  <input name="lastName" type="text" placeholder="Last Name" value={profileData.lastName} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
+                  <input name="firstName" type="text" placeholder="මුල් නම" value={profileData.firstName} onChange={handleInputChange} className="p-2 border rounded-md" />
+                  <input name="lastName" type="text" placeholder="අග නම" value={profileData.lastName} onChange={handleInputChange} className="p-2 border rounded-md" />
                 </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <input name="location" type="text" placeholder="Location" value={profileData.location} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                  <input name="industry" type="text" placeholder="Industry" value={profileData.industry} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                </div>
-                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">Save Changes</button>
+                <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full">Update Identity</button>
               </div>
             </SettingRow>
 
-            {/* 2. Education & Student Details Section */}
             <SettingRow 
               id="education" 
-              title="Education and Skills" 
-              value={profileData.university ? `${profileData.university} - ${profileData.degree}` : "Add academic details"}
+              title="අධ්‍යාපන සුදුසුකම්" 
+              value={profileData.university ? `${profileData.university}` : "Not provided"}
               openSection={openSection} 
-              toggleSection={toggleSection}
+              toggleSection={setOpenSection}
             >
               <div className="space-y-4">
-                <input name="university" type="text" placeholder="University" value={profileData.university} onChange={handleInputChange} className="w-full p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                <input name="degree" type="text" placeholder="Degree Program" value={profileData.degree} onChange={handleInputChange} className="w-full p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                <div className="grid grid-cols-2 gap-4">
-                  <input name="gpa" type="text" placeholder="GPA" value={profileData.gpa} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                  <input name="skills" type="text" placeholder="Skills (e.g. React, C#)" value={profileData.skills} onChange={handleInputChange} className="p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500" />
-                </div>
-                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">Save Education Info</button>
-              </div>
-            </SettingRow>
-
-            {/* 3. Personal Demographic Information Section */}
-            <SettingRow 
-              id="demo" 
-              title="Personal Demographic Information" 
-              value={profileData.gender ? `Gender: ${profileData.gender}` : "Specify gender"}
-              openSection={openSection} 
-              toggleSection={toggleSection} 
-            >
-               <div className="space-y-4">
-                <p className="text-sm text-gray-600">This information helps us build a more inclusive community.</p>
-                <select 
-                    name="gender" 
-                    value={profileData.gender} 
-                    onChange={handleInputChange}
-                    className="w-full p-2 bg-white border rounded-md outline-none focus:ring-1 focus:ring-blue-500"
-                >
-                    <option value="">Select Gender</option>
-                    <option value="Male">Male</option>
-                    <option value="Female">Female</option>
-                    <option value="Other">Other</option>
-                    <option value="Prefer not to say">Prefer not to say</option>
-                </select>
-                <button onClick={handleSave} className="px-4 py-1.5 bg-blue-600 text-white rounded-full text-sm font-semibold hover:bg-blue-700 transition-colors">Save Demographics</button>
-              </div>
-            </SettingRow>
-
-            {/* 4. Verifications (NIC/ID Upload) Section */}
-            <SettingRow 
-              id="verif" 
-              title="Verifications" 
-              value={profileData.isVerified ? "Status: Verified" : "Status: Not Verified"}
-              openSection={openSection} 
-              toggleSection={toggleSection} 
-            >
-               <div className="space-y-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <CheckCircle size={18} className={profileData.isVerified ? "text-green-500" : "text-gray-300"} />
-                    <span>Identity Verification (NIC / Student ID)</span>
-                </div>
-                <div className="p-4 text-center transition-colors bg-white border-2 border-gray-200 border-dashed rounded-lg hover:border-blue-400">
-                    <input type="file" id="nicUpload" className="hidden" onChange={handleFileChange} />
-                    <label htmlFor="nicUpload" className="flex flex-col items-center cursor-pointer">
-                        <Upload size={24} className="mb-2 text-gray-400" />
-                        <span className="text-sm font-medium text-gray-700">{selectedFile ? selectedFile.name : "Click to upload your NIC or Student ID"}</span>
-                        <span className="mt-1 text-xs text-gray-400">PDF, JPG or PNG (Max 5MB)</span>
-                    </label>
-                </div>
-                <button onClick={handleVerifyUpload} className="w-full py-2 text-sm font-medium text-white transition-colors bg-gray-800 rounded-md hover:bg-black">Submit for Verification</button>
+                <input name="university" type="text" placeholder="විශ්වවිද්‍යාලය" value={profileData.university} onChange={handleInputChange} className="w-full p-2 border rounded-md" />
+                <input name="degree" type="text" placeholder="උපාධිය" value={profileData.degree} onChange={handleInputChange} className="w-full p-2 border rounded-md" />
+                <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full">Update Education</button>
               </div>
             </SettingRow>
 
