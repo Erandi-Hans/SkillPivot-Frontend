@@ -1,121 +1,82 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { ChevronRight, ChevronDown, Upload, CheckCircle } from 'lucide-react';
-
-const SettingRow = ({ id, title, value, children, openSection, toggleSection }) => (
-  <div className="border-b border-gray-100 last:border-0">
-    <div 
-      onClick={() => toggleSection(id)}
-      className="flex items-center justify-between px-2 py-4 transition rounded-md cursor-pointer group hover:bg-gray-50"
-    >
-      <div className="flex-1">
-        <p className="text-[15px] font-medium text-gray-800 group-hover:text-blue-600 transition-colors">
-          {title}
-        </p>
-        {openSection !== id && value && (
-          <p className="text-sm text-gray-500 mt-0.5">{value}</p>
-        )}
-      </div>
-      <span className="font-light text-gray-400 transition-transform group-hover:translate-x-1">
-        {openSection === id ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-      </span>
-    </div>
-    {openSection === id && (
-      <div className="p-5 my-2 border border-gray-100 rounded-lg bg-gray-50 animate-fadeIn">
-        {children}
-      </div>
-    )}
-  </div>
-);
+import { Upload, CheckCircle, Save, User, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const AccountPreferences = () => {
-  const [openSection, setOpenSection] = useState(null);
-  const userId = localStorage.getItem('userId'); 
-
-  const [profileData, setProfileData] = useState({
-    firstName: '',
-    lastName: '',
-    location: '',
-    industry: '',
-    email: '',
-    university: '',
-    degree: '',
-    gpa: '',
-    skills: '',
-    gender: '', 
-    isVerified: false 
-  });
-
+  const userId = localStorage.getItem('userId');
+  const [loading, setLoading] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      if (!userId || userId === "null") return;
-      
-      try {
-        const userResponse = await axios.get(`https://localhost:7118/api/Users/${userId}`);
-        const userData = userResponse.data;
+  const [profileData, setProfileData] = useState({
+    firstName: '', lastName: '', location: '', industry: '',
+    email: '', password: '', role: '',
+    university: '', degree: '', gpa: '', skills: '',
+    gender: '', isVerified: false, nicDocumentPath: ''
+  });
 
-        let studentData = {};
+  useEffect(() => {
+    const fetchAllData = async () => {
+      if (!userId || userId === "null") return;
+      try {
+        const userRes = await axios.get(`https://localhost:7118/api/Users/${userId}`);
+        const u = userRes.data;
+
+        let s = {};
         try {
-          const studentResponse = await axios.get(`https://localhost:7118/api/Students/user/${userId}`);
-          studentData = studentResponse.data;
-        } catch (studentErr) {
-          if (studentErr.response && studentErr.response.status === 404) {
-            // Auto-create missing student profile
-            const newStudentPayload = {
-              UserId: parseInt(userId),
-              University: "",
-              Degree: "",
-              GPA: "",
-              Skills: "",
-              Gender: "",
-              IsVerified: false,
-              NicDocumentPath: ""
-            };
-            const createRes = await axios.post(`https://localhost:7118/api/Students`, newStudentPayload);
-            studentData = createRes.data;
+          const studentRes = await axios.get(`https://localhost:7118/api/Students/user/${userId}`);
+          s = studentRes.data;
+        } catch (err) {
+          if (err.response?.status === 404) {
+            const createRes = await axios.post(`https://localhost:7118/api/Students`, { UserId: parseInt(userId) });
+            s = createRes.data;
           }
         }
 
         setProfileData({
-          firstName: userData.firstname || userData.Firstname || '',
-          lastName: userData.lastname || userData.Lastname || '',
-          location: userData.location || userData.Location || '',
-          industry: userData.industry || userData.Industry || '',
-          email: userData.email || userData.Email || '',
-          university: studentData.university || studentData.University || '',
-          degree: studentData.degree || studentData.Degree || '',
-          gpa: studentData.gpa || studentData.GPA || '',
-          skills: studentData.skills || studentData.Skills || '',
-          gender: studentData.gender || studentData.Gender || '', 
-          isVerified: studentData.isVerified || studentData.IsVerified || false
+          firstName: u.firstname || u.Firstname || '',
+          lastName: u.lastname || u.Lastname || '',
+          location: u.location || u.Location || '',
+          industry: u.industry || u.Industry || '',
+          email: u.email || u.Email || '',
+          password: u.password || u.Password || '',
+          role: u.role || u.Role || '',
+          university: s.university || s.University || '',
+          degree: s.degree || s.Degree || '',
+          gpa: s.gpa || s.GPA || '',
+          skills: s.skills || s.Skills || '',
+          gender: s.gender || s.Gender || '',
+          isVerified: s.isVerified || s.IsVerified || false,
+          nicDocumentPath: s.nicDocumentPath || s.NicDocumentPath || ''
         });
-
       } catch (error) {
-        console.error("Fetch error:", error);
+        console.error("Error loading profile:", error);
       }
     };
-
-    fetchUserData();
+    fetchAllData();
   }, [userId]);
 
-  const handleSave = async () => {
-    if (!userId) return;
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setProfileData(prev => ({ ...prev, [name]: value }));
+  };
 
+  const handleSaveAll = async () => {
+    setLoading(true);
     try {
-      // .NET API එක බලාපොරොත්තු වන PascalCase Payload එක
-      const userPayload = {
+      // 1. Update User Table
+      await axios.put(`https://localhost:7118/api/Users/${userId}`, {
         UserId: parseInt(userId),
         Firstname: profileData.firstName,
         Lastname: profileData.lastName,
+        Email: profileData.email,
+        Password: profileData.password,
+        Role: profileData.role,
         Location: profileData.location,
-        Industry: profileData.industry,
-        Email: profileData.email
-      };
-      await axios.put(`https://localhost:7118/api/Users/${userId}`, userPayload);
+        Industry: profileData.industry
+      });
 
-      const studentPayload = {
+      // 2. Update Student Table
+      await axios.put(`https://localhost:7118/api/Students/user/${userId}`, {
         UserId: parseInt(userId),
         University: profileData.university,
         Degree: profileData.degree,
@@ -123,60 +84,94 @@ const AccountPreferences = () => {
         Skills: profileData.skills,
         Gender: profileData.gender,
         IsVerified: profileData.isVerified,
-        NicDocumentPath: "" // අනිවාර්යයෙන්ම හිස් string එකක් හෝ අගයක් යැවිය යුතුයි
-      };
-      await axios.put(`https://localhost:7118/api/Students/user/${userId}`, studentPayload);
-      
-      alert("පැතිකඩ සාර්ථකව යාවත්කාලීන කරන ලදී!");
-      setOpenSection(null);
+        NicDocumentPath: profileData.nicDocumentPath
+      });
+
+      alert("Profile successfully updated!");
     } catch (error) {
-      console.error("Save error:", error);
-      alert("දත්ත සුරැකීමට නොහැකි විය. කරුණාකර නැවත උත්සාහ කරන්න.");
+      alert("Error saving profile. Check console for details.");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setProfileData(prev => ({ ...prev, [name]: value }));
+  const handleFileUpload = async () => {
+    if (!selectedFile) return alert("Select a file first");
+    const formData = new FormData();
+    formData.append('file', selectedFile);
+
+    try {
+      const res = await axios.post(`https://localhost:7118/api/Students/upload-nic/${userId}`, formData);
+      setProfileData(prev => ({ ...prev, nicDocumentPath: res.data.path }));
+      alert("Verification document uploaded!");
+    } catch (error) {
+      alert("Upload failed.");
+    }
   };
 
   return (
-    <div className="max-w-2xl pb-10 mx-auto space-y-6">
-      <section className="overflow-hidden bg-white border border-gray-200 shadow-sm rounded-xl">
-        <div className="p-6">
-          <h2 className="mb-4 text-lg font-semibold text-gray-900">පැතිකඩ සැකසුම්</h2>
-          <div className="flex flex-col">
-            
-            <SettingRow 
-              id="name-loc" 
-              title="නම සහ ලිපිනය" 
-              value={`${profileData.firstName} ${profileData.lastName}`}
-              openSection={openSection} 
-              toggleSection={setOpenSection}
-            >
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <input name="firstName" type="text" placeholder="මුල් නම" value={profileData.firstName} onChange={handleInputChange} className="p-2 border rounded-md" />
-                  <input name="lastName" type="text" placeholder="අග නම" value={profileData.lastName} onChange={handleInputChange} className="p-2 border rounded-md" />
-                </div>
-                <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full">Update Identity</button>
-              </div>
-            </SettingRow>
+    <div className="max-w-4xl p-6 mx-auto space-y-8">
+      <div className="flex items-center justify-between pb-4 border-b">
+        <h1 className="text-2xl font-bold text-gray-800">Account Preferences</h1>
+        <button onClick={handleSaveAll} disabled={loading} className="flex items-center gap-2 px-6 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
+          <Save size={18} /> {loading ? 'Saving...' : 'Save All Changes'}
+        </button>
+      </div>
 
-            <SettingRow 
-              id="education" 
-              title="අධ්‍යාපන සුදුසුකම්" 
-              value={profileData.university ? `${profileData.university}` : "Not provided"}
-              openSection={openSection} 
-              toggleSection={setOpenSection}
-            >
-              <div className="space-y-4">
-                <input name="university" type="text" placeholder="විශ්වවිද්‍යාලය" value={profileData.university} onChange={handleInputChange} className="w-full p-2 border rounded-md" />
-                <input name="degree" type="text" placeholder="උපාධිය" value={profileData.degree} onChange={handleInputChange} className="w-full p-2 border rounded-md" />
-                <button onClick={handleSave} className="px-4 py-2 text-sm font-semibold text-white bg-blue-600 rounded-full">Update Education</button>
-              </div>
-            </SettingRow>
+      {/* 1. Personal Information */}
+      <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
+        <div className="flex items-center gap-2 mb-2 font-semibold text-blue-600">
+          <User size={20} /> <span>Personal Information & Demographics</span>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <input name="firstName" placeholder="First Name" value={profileData.firstName} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="lastName" placeholder="Last Name" value={profileData.lastName} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="location" placeholder="Location" value={profileData.location} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="industry" placeholder="Industry" value={profileData.industry} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <select name="gender" value={profileData.gender} onChange={handleInputChange} className="p-2 border rounded-md">
+            <option value="">Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+          <input name="email" placeholder="Email Address" value={profileData.email} disabled className="p-2 border rounded-md cursor-not-allowed bg-gray-50" />
+        </div>
+      </section>
 
+      {/* 2. Academic Details */}
+      <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
+        <div className="flex items-center gap-2 mb-2 font-semibold text-green-600">
+          <GraduationCap size={20} /> <span>Academic & Professional Details</span>
+        </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <input name="university" placeholder="University" value={profileData.university} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="degree" placeholder="Degree Program" value={profileData.degree} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="gpa" placeholder="GPA" value={profileData.gpa} onChange={handleInputChange} className="p-2 border rounded-md" />
+          <input name="skills" placeholder="Skills (e.g. React, SQL)" value={profileData.skills} onChange={handleInputChange} className="p-2 border rounded-md" />
+        </div>
+      </section>
+
+      {/* 3. Identity Verification */}
+      <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
+        <div className="flex items-center gap-2 mb-2 font-semibold text-purple-600">
+          <ShieldCheck size={20} /> <span>Identity Verification</span>
+        </div>
+        <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
+          <div className="flex items-center gap-3">
+            <CheckCircle className={profileData.isVerified ? "text-green-500" : "text-gray-300"} />
+            <div>
+              <p className="text-sm font-medium">Official ID (NIC / Student ID)</p>
+              <p className="text-xs text-gray-500">{profileData.isVerified ? "Your identity is verified." : "Verification pending document upload."}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <input type="file" id="fileIn" hidden onChange={(e) => setSelectedFile(e.target.files[0])} />
+            <label htmlFor="fileIn" className="cursor-pointer bg-gray-200 px-4 py-1.5 rounded text-sm hover:bg-gray-300 transition">
+              {selectedFile ? selectedFile.name : "Select File"}
+            </label>
+            <button onClick={handleFileUpload} className="bg-black text-white px-4 py-1.5 rounded text-sm flex items-center gap-1">
+              <Upload size={14} /> Upload
+            </button>
           </div>
         </div>
       </section>
