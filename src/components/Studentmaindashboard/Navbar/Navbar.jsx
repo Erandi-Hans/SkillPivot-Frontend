@@ -1,26 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 import { 
   LayoutDashboard, 
   FileUser, 
   Search, 
   UserRoundPen, 
   ClipboardCheck,
-  Bell,
   Zap,
   LogOut,
   User,
   RefreshCw,
-  LogIn // Added LogIn icon for professional look
+  LogIn 
 } from 'lucide-react';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  
+  const [userData, setUserData] = useState({ firstName: '', lastName: '', profilePicture: '' });
 
-  // Define authentication pages where full navigation is hidden
+  const userId = localStorage.getItem('userId') || 11;
   const isAuthPage = location.pathname === '/' || location.pathname === '/signin' || location.pathname === '/signup';
+
+  // දත්ත ලබාගන්නා function එක වෙනම ලියා ගනිමු
+  const fetchUser = async () => {
+    if (!isAuthPage) {
+      try {
+        const response = await axios.get(`https://localhost:7118/api/Users/${userId}`);
+        setUserData({
+          firstName: response.data.Firstname,
+          lastName: response.data.Lastname,
+          profilePicture: response.data.ProfilePicture 
+            ? `https://localhost:7118/uploads/${response.data.ProfilePicture}` 
+            : null
+        });
+      } catch (error) {
+        console.error("Error fetching navbar user data", error);
+      }
+    }
+  };
+
+  useEffect(() => {
+    fetchUser();
+
+    // අලුත් logic එක: පේජ් එක Refresh නොවී Navbar එක Update කිරීමට event එකක් Listen කිරීම
+    window.addEventListener('profileUpdate', fetchUser);
+
+    return () => {
+      window.removeEventListener('profileUpdate', fetchUser);
+    };
+  }, [isAuthPage, userId]);
 
   const navLinks = [
     { name: 'Dashboard', icon: LayoutDashboard, path: '/student-dashboard' },
@@ -30,27 +61,14 @@ const Navbar = () => {
     { name: 'Applications', icon: ClipboardCheck, path: '/applications' },
   ];
 
-  // Logic for Logo click
-  const handleLogoClick = () => {
-    if (isAuthPage) {
-      navigate('/'); // Role Selection Page
-    } else {
-      navigate('/student-dashboard'); // Student Dashboard
-    }
-  };
-
-  // Logout handler that cleans up and redirects to the Sign In page
   const handleLogout = () => {
-    console.log("Clearing user session...");
-    // If you use localStorage, add: localStorage.removeItem('token');
-    navigate('/signin'); // Redirecting to Sign In page as requested
+    localStorage.removeItem('userId');
+    navigate('/signin');
   };
 
   return (
     <nav className="sticky top-0 z-50 flex items-center justify-between px-8 py-3 bg-white border-b border-gray-200 shadow-sm backdrop-blur-md bg-white/90">
-      
-      {/* Brand Logo Section */}
-      <div className="flex items-center gap-2 cursor-pointer group" onClick={handleLogoClick}>
+      <div className="flex items-center gap-2 cursor-pointer group" onClick={() => navigate(isAuthPage ? '/' : '/student-dashboard')}>
         <div className="p-2 text-white transition-transform bg-blue-600 rounded-lg group-hover:scale-110">
           <Zap size={20} fill="currentColor" />
         </div>
@@ -59,7 +77,6 @@ const Navbar = () => {
         </h1>
       </div>
 
-      {/* Main Navigation - Visible only for logged-in users */}
       {!isAuthPage && (
         <div className="items-center hidden gap-2 lg:flex">
           {navLinks.map((link) => {
@@ -81,38 +98,36 @@ const Navbar = () => {
         </div>
       )}
 
-      {/* Action Buttons Section */}
       <div className="flex items-center gap-4">
-        
-        {/* Profile Dropdown (Shown when logged in) */}
         {!isAuthPage ? (
           <div className="relative flex items-center gap-3 pl-4 border-l border-gray-200">
             <div className="hidden text-right sm:block">
-              <p className="text-sm font-bold leading-tight text-gray-800">Alex Perera</p>
+              <p className="text-sm font-bold leading-tight text-gray-800">
+                {userData.firstName} {userData.lastName}
+              </p>
               <p className="text-[10px] font-medium text-blue-600 uppercase tracking-wider">Undergraduate</p>
             </div>
             
             <div className="relative cursor-pointer" onClick={() => setShowProfileMenu(!showProfileMenu)}>
-              <img
-                src="https://via.placeholder.com/40"
-                alt="Profile"
-                className="object-cover w-10 h-10 transition-all border-2 border-transparent rounded-full hover:border-blue-500"
-              />
+              <div className="w-10 h-10 overflow-hidden border-2 border-transparent rounded-full hover:border-blue-500">
+                {userData.profilePicture ? (
+                    <img src={userData.profilePicture} alt="Profile" className="object-cover w-full h-full" />
+                ) : (
+                    <div className="flex items-center justify-center w-full h-full bg-gray-200">
+                        <User size={20} className="text-gray-500" />
+                    </div>
+                )}
+              </div>
               
               {showProfileMenu && (
                 <div className="absolute right-0 py-2 mt-3 bg-white border border-gray-100 shadow-xl w-52 rounded-xl">
                   <button onClick={() => { navigate('/edit-profile'); setShowProfileMenu(false); }} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600">
                     <User size={16} /> My Profile
                   </button>
-                  
-                  {/* Change Role Link back to Main Selection Page */}
                   <button onClick={() => { navigate('/'); setShowProfileMenu(false); }} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-gray-600 hover:bg-gray-50 hover:text-blue-600">
                     <RefreshCw size={16} /> Change Role
                   </button>
-
                   <hr className="my-1 border-gray-100" />
-                  
-                  {/* Logout link that goes to Sign In page */}
                   <button onClick={handleLogout} className="flex items-center w-full gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                     <LogOut size={16} /> Log Out
                   </button>
@@ -121,13 +136,8 @@ const Navbar = () => {
             </div>
           </div>
         ) : (
-          /* Sign In Link - Shown on Role Selection page */
-          <button 
-            onClick={() => navigate('/signin')}
-            className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg active:scale-95"
-          >
-            <LogIn size={16} />
-            Sign In
+          <button onClick={() => navigate('/signin')} className="flex items-center gap-2 px-6 py-2 text-sm font-bold text-white transition-all bg-blue-600 rounded-lg hover:bg-blue-700 hover:shadow-lg active:scale-95">
+            <LogIn size={16} /> Sign In
           </button>
         )}
       </div>
