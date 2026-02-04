@@ -17,29 +17,34 @@ const EditProfile = () => {
   const fileInputRef = useRef(null);
   const location = useLocation();
   
-  // LocalStorage එකෙන් UserId එක ගන්න, නැත්නම් default 11 ලෙස තබා ගන්න
+  // Get UserId from localStorage or use default 11
   const userId = localStorage.getItem('userId') || 11;
 
-  // පේජ් එක ලෝඩ් වෙද්දී දැනට තියෙන දත්ත ගෙන්වා ගන්න
+  /**
+   * Function to fetch user data from the backend.
+   * This is separated so it can be called after an update.
+   */
+  const fetchUserData = async () => {
+    try {
+      const response = await axios.get(`https://localhost:7118/api/Users/${userId}`);
+      // Important: Use PascalCase 'ProfilePicture' to match C# Backend model
+      if (response.data.ProfilePicture) {
+        setProfileImg(`https://localhost:7118/uploads/${response.data.ProfilePicture}`);
+      }
+    } catch (error) {
+      console.error("Error fetching user data", error);
+    }
+  };
+
+  // Initial load logic
   useEffect(() => {
     window.scrollTo(0, 0);
-    
-    const fetchUserData = async () => {
-      try {
-        const response = await axios.get(`https://localhost:7118/api/Users/${userId}`);
-        if (response.data.profilePicture) {
-          // මෙතන API එකෙන් එන පින්තූරයේ URL එක සකස් කර ගන්න
-          setProfileImg(`https://localhost:7118/uploads/${response.data.profilePicture}`);
-        }
-      } catch (error) {
-        console.error("Error fetching user data", error);
-      }
-    };
-    
     fetchUserData();
   }, [location.pathname, userId]);
 
-  // පින්තූරයක් තේරූ විට Preview පෙන්වන්න
+  /**
+   * Handle local file selection and create a preview URL.
+   */
   const handleFileSelect = (e) => {
     const file = e.target.files[0];
     if (file && file.type.startsWith('image/')) {
@@ -50,7 +55,9 @@ const EditProfile = () => {
     }
   };
 
-  // ඩේටාබේස් එකට Update කිරීම
+  /**
+   * Upload the selected image to the server and update the UI.
+   */
   const handleUpdateDatabase = async () => {
     if (!selectedFile) {
       alert("Please select an image first!");
@@ -58,18 +65,29 @@ const EditProfile = () => {
     }
 
     const formData = new FormData();
-    // API එකේ පරාමිතිය (Parameter) සමඟ මෙය ගැලපිය යුතුයි (e.g., IFormFile profileImage)
+    // Ensure 'profileImage' matches the parameter name in your ASP.NET Controller
     formData.append('profileImage', selectedFile);
 
     try {
+      // POST request to update the profile picture
       await axios.post(`https://localhost:7118/api/Users/upload-image/${userId}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
+
       alert("Profile picture updated successfully!");
-      setSelectedFile(null); // බටන් එක නැවත disable කිරීමට
+      
+      // Reset the selection state
+      setSelectedFile(null); 
+
+      // CRITICAL: Refetch the data from the server to get the new filename and persist it
+      await fetchUserData();
+
+      // Notify other components (Navbar/Dashboard) to update their images immediately
+      window.dispatchEvent(new Event('profileUpdate'));
+
     } catch (error) {
       console.error("Image upload failed", error);
-      alert("Upload failed. Make sure the API endpoint exists.");
+      alert("Upload failed. Make sure the API endpoint exists and returns a success status.");
     }
   };
 
@@ -82,11 +100,12 @@ const EditProfile = () => {
       <div className="container flex items-center justify-center max-w-6xl min-h-screen px-4 pt-24 pb-12 mx-auto">
         <div className="flex w-full h-[85vh] bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-200">
           
+          {/* Sidebar Navigation */}
           <aside className="flex-col hidden bg-white border-r w-80 md:flex">
             <div className="flex flex-col items-center p-8 space-y-4 border-b border-gray-100 bg-gray-50/50">
               
               <div className="relative group">
-                {/* රවුම හරියටම තබා ගැනීමට aspect-square භාවිතා කරන්න */}
+                {/* Profile Image Container */}
                 <div className="w-32 h-32 overflow-hidden bg-gray-200 border-4 border-white rounded-full shadow-lg ring-1 ring-gray-200 aspect-square">
                   {profileImg ? (
                     <img src={profileImg} alt="Profile" className="object-cover w-full h-full" />
@@ -100,6 +119,7 @@ const EditProfile = () => {
 
               <h1 className="text-xl font-bold text-gray-800">Edit your profile</h1>
 
+              {/* Action Buttons */}
               <div className="flex items-center gap-2 mt-2">
                 <button 
                   onClick={() => fileInputRef.current.click()}
@@ -111,8 +131,8 @@ const EditProfile = () => {
 
                 <button 
                   onClick={handleUpdateDatabase}
-                  className={`p-2 transition rounded-full shadow-sm ${selectedFile ? 'bg-green-600 text-white hover:bg-green-700' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
-                  title="Update Database"
+                  className={`p-2 transition rounded-full shadow-sm ${selectedFile ? 'bg-green-600 text-white hover:bg-green-700 animate-pulse' : 'bg-gray-100 text-gray-400 cursor-not-allowed'}`}
+                  title="Save to Database"
                   disabled={!selectedFile}
                 >
                   <Upload size={18} />
@@ -145,6 +165,7 @@ const EditProfile = () => {
             </nav>
           </aside>
 
+          {/* Main Content Area */}
           <main className="flex-1 overflow-y-auto bg-white">
             <div className="p-8 animate-fadeIn">
               {activeTab === 'Account preferences' && <AccountPreferences />}
@@ -156,9 +177,10 @@ const EditProfile = () => {
         </div>
       </div>
 
+      {/* Hidden File Input */}
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleFileSelect} />
 
-      {/* Modal View */}
+      {/* Full Image Preview Modal */}
       {showViewModal && (
         <div 
           className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
