@@ -28,7 +28,7 @@ import Companyprofile from './components/Companymaindashboard/Maincompo/Companyp
 
 import AdminDashboard from './components/Admindashboardmain/Admindashboard/Admindashboard';
 import AdminNavbar from './components/Admindashboardmain/Adminnavbar/Adminnavbar';
-import Adminusermanagemnt from './components/Adminusermanagemnt/Adminusermanagemnt';
+//import Adminusermanagemnt from './components/Adminusermanagemnt/Adminusermanagemnt';
 import Admincompanyverification from './components/Admincompanyverification/Admincompanyverification';
 import Adminjob from './components/Admindashboardmain/Adminmaincompo/Adminjob/Adminjob';
 import Adminsystemsettings from './components/Admindashboardmain/Adminmaincompo/Adminsystemsettings/Adminsystemsettings';
