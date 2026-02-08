@@ -24,7 +24,7 @@ const CompanyNavbar = () => {
     logo: localStorage.getItem('companyLogo') || null
   });
 
-  // Listen for changes in localStorage (Profile එක update වුණොත් වහාම දැනගන්න)
+  // Listen for changes in localStorage 
   useEffect(() => {
     const updateNav = () => {
       setNavData({
@@ -33,7 +33,7 @@ const CompanyNavbar = () => {
       });
     };
 
-    // පේජ් එක load වෙනකොට සහ වෙනත් tab එකක update වුණොත් check කරන්න
+    
     window.addEventListener('storage', updateNav);
     return () => window.removeEventListener('storage', updateNav);
   }, []);
@@ -109,7 +109,7 @@ const CompanyNavbar = () => {
               <p className="text-sm font-bold leading-tight text-slate-900 truncate max-w-[150px]">
                 {navData.name}
               </p>
-              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Hiring Manager</p>
+              <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">Hiring Interns</p>
             </div>
             
             <div className="relative cursor-pointer" onClick={() => setShowProfileMenu(!showProfileMenu)}>
