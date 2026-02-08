@@ -9,6 +9,7 @@ import {
   XCircle, 
   TrendingUp 
 } from 'lucide-react';
+ 
 
 const AdminDashboard = () => {
   // Sample data for system-wide statistics
