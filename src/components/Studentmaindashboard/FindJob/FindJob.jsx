@@ -116,23 +116,34 @@ const FindJob = () => {
     );
   };
 
-  // Function to handle the Job Application process (Data Gathering & API Call simulation)
-  const handleApplyJob = async (jobId) => {
-    try {
-      setIsApplying(true); // Start Waiting State
-      
-      // Simulating API Call to POST /api/Applications
-      // In production, replace with: await axios.post('https://localhost:7118/api/Applications', { jobId });
-      await new Promise(resolve => setTimeout(resolve, 2000)); 
+  // Function to handle the Job Application process (Sending data to .NET Backend)
+const handleApplyJob = async (jobId) => {
+  try {
+    setIsApplying(true); // Start the loading/waiting state
 
+    // Construct the data object to match the Backend JobApplication model
+    // Note: Ensure StudentId is retrieved from your authentication logic (hardcoded as 1 for now)
+    const applicationData = {
+      JobPostId: jobId,
+      StudentId: 1, // Replace this with the actual logged-in user's ID
+      Status: "Pending",
+      AppliedDate: new Date().toISOString()
+    };
+
+    // Actual API Call to the Backend POST endpoint
+    const response = await axios.post('https://localhost:7118/api/JobApplications', applicationData);
+
+    if (response.status === 200 || response.status === 201) {
       alert("Application Submitted Successfully!");
-      setSelectedJob(null); // Close modal after success
-    } catch (error) {
-      alert("Failed to submit application. Please try again.");
-    } finally {
-      setIsApplying(false); // Stop Waiting State
+      setSelectedJob(null); // Close the details modal on success
     }
-  };
+  } catch (error) {
+    console.error("Submission Error:", error.response?.data || error.message);
+    alert("Failed to submit application. Please check your connection or database constraints.");
+  } finally {
+    setIsApplying(false); // Stop the loading/waiting state
+  }
+};
 
   return (
     <div className="min-h-screen bg-[#F8FAFC] font-sans">

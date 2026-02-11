@@ -25,16 +25,27 @@ const CompanypostaJob = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    /**
+     * Constructing the internship data object to match the Backend JobPost Model.
+     * All database columns (Category, SubCategory, CompanyName, Location) are now mapped correctly.
+     */
     const internshipData = {
       jobPostId: 0, 
       jobTitle: jobTitle,
+      // Description includes formatted metadata for legacy parsing if needed
       description: `[Category: ${selectedCategory}] [Mode: ${workMode}] [Duration: ${duration}] [Deadline: ${deadline}] [Location: ${location}] [Stipend: ${stipend}] - ${description}`,
       technologyStack: stack,
       jobType: workMode,
       jobRole: "Intern",
       status: "Active",
       postedDate: new Date().toISOString(),
-      companyId: 1 
+      companyId: 1, // Assuming fixed CompanyId for now
+      
+      // --- Mapping additional database fields from local state ---
+      category: selectedCategory,
+      subCategory: jobTitle, // Using the specific job title as the subcategory
+      companyName: "SkillPivot", // Placeholder company name as per your database screenshot
+      location: location
     };
 
     try {
@@ -51,8 +62,8 @@ const CompanypostaJob = () => {
   };
 
   /**
-   * Helper function to return dynamic options based on the selected category
-   * This ensures the form updates its context without changing the core UI structure.
+   * Helper function to return dynamic options based on the selected category.
+   * This maintains design consistency while providing domain-specific choices.
    */
   const getCategoryData = () => {
     switch (selectedCategory) {
@@ -100,7 +111,7 @@ const CompanypostaJob = () => {
   const categoryData = getCategoryData();
 
   /**
-   * Reusable form component to maintain design consistency across all categories
+   * Reusable form component to render the posting interface based on selected category.
    */
   const renderJobForm = (title, subtitle) => (
     <div className="overflow-hidden duration-500 bg-white border shadow-2xl rounded-3xl border-slate-200 animate-in fade-in">
@@ -230,7 +241,6 @@ const CompanypostaJob = () => {
             value={selectedCategory}
             onChange={(e) => {
               setSelectedCategory(e.target.value);
-              // Initialize default title based on selected category
               const data = getCategoryData();
               if (e.target.value !== '') setJobTitle(data.titles[0]);
             }}
