@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { 
   Upload, CheckCircle, Save, User, GraduationCap, 
-  ShieldCheck, ChevronDown, X, Briefcase, Code, Link as LinkIcon, Phone, FileText 
+  ShieldCheck, X, Briefcase, Code, Link as LinkIcon, 
+  Phone, FileText, Award, Globe, Plus, Trash2, MapPin
 } from 'lucide-react';
 
 const AccountPreferences = () => {
@@ -12,13 +13,19 @@ const AccountPreferences = () => {
 
   const [profileData, setProfileData] = useState({
     firstName: '', lastName: '', location: '', industry: '',
-    email: '', phone: '', linkedin: '', github: '', portfolio: '',
-    summary: '',
-    experience: '', // Stored as stringified JSON or formatted text
-    projects: '',   // Stored as stringified JSON or formatted text
-    university: '', degree: '', gpa: '', skills: '',
+    email: '', phone: '', linkedin: '', github: '', portfolio: '', medium: '',
+    targetRole: '', summary: '', experience: '',
+    languages: '', university: '', degree: '', gpa: '', skills: '',
     gender: '', isVerified: false, nicDocumentPath: ''
   });
+
+  const [projects, setProjects] = useState([
+    { name: '', techStack: '', liveLink: '', githubLink: '', description: '' }
+  ]);
+
+  const [certifications, setCertifications] = useState([
+    { title: '', issuedBy: '', year: '' }
+  ]);
 
   const techStackOptions = [
     "JavaScript", "TypeScript", "Python", "Java", "C#", "C++", "PHP", "Go", "Rust", "Swift",
@@ -69,9 +76,11 @@ const AccountPreferences = () => {
           linkedin: u.linkedin || '',
           github: u.github || '',
           portfolio: u.portfolio || '',
+          medium: u.medium || '',
+          targetRole: s.targetRole || '',
           summary: s.summary || '',
           experience: s.experience || '',
-          projects: s.projects || '',
+          languages: s.languages || '',
           university: s.university || '',
           degree: s.degree || '',
           gpa: s.gpa || '',
@@ -80,6 +89,21 @@ const AccountPreferences = () => {
           isVerified: s.isVerified || false,
           nicDocumentPath: s.nicDocumentPath || ''
         });
+
+        if (s.projects) {
+          try {
+            const parsed = JSON.parse(s.projects);
+            if (Array.isArray(parsed)) setProjects(parsed);
+          } catch (e) { console.error("Projects parse error"); }
+        }
+
+        if (s.certifications) {
+          try {
+            const parsed = JSON.parse(s.certifications);
+            if (Array.isArray(parsed)) setCertifications(parsed);
+          } catch (e) { console.error("Certifications parse error"); }
+        }
+
       } catch (error) {
         console.error("Error loading profile:", error);
       }
@@ -91,6 +115,24 @@ const AccountPreferences = () => {
     const { name, value } = e.target;
     setProfileData(prev => ({ ...prev, [name]: value }));
   };
+
+  // Projects Logic
+  const handleProjectChange = (index, field, value) => {
+    const updated = [...projects];
+    updated[index][field] = value;
+    setProjects(updated);
+  };
+  const addProject = () => setProjects([...projects, { name: '', techStack: '', liveLink: '', githubLink: '', description: '' }]);
+  const removeProject = (index) => setProjects(projects.filter((_, i) => i !== index));
+
+  // Certifications Logic
+  const handleCertChange = (index, field, value) => {
+    const updated = [...certifications];
+    updated[index][field] = value;
+    setCertifications(updated);
+  };
+  const addCert = () => setCertifications([...certifications, { title: '', issuedBy: '', year: '' }]);
+  const removeCert = (index) => setCertifications(certifications.filter((_, i) => i !== index));
 
   const handleSkillSelect = (e) => {
     const selectedSkill = e.target.value;
@@ -104,11 +146,7 @@ const AccountPreferences = () => {
   };
 
   const removeSkill = (skillToRemove) => {
-    const updatedSkills = profileData.skills
-      .split(',')
-      .map(s => s.trim())
-      .filter(s => s !== skillToRemove)
-      .join(', ');
+    const updatedSkills = profileData.skills.split(',').map(s => s.trim()).filter(s => s !== skillToRemove).join(', ');
     setProfileData(prev => ({ ...prev, skills: updatedSkills }));
   };
 
@@ -125,21 +163,15 @@ const AccountPreferences = () => {
         Phone: profileData.phone,
         Linkedin: profileData.linkedin,
         Github: profileData.github,
-        Portfolio: profileData.portfolio
+        Portfolio: profileData.portfolio,
+        Medium: profileData.medium
       });
 
       await axios.put(`https://localhost:7118/api/Students/user/${userId}`, {
+        ...profileData,
         UserId: parseInt(userId),
-        University: profileData.university,
-        Degree: profileData.degree,
-        GPA: profileData.gpa,
-        Skills: profileData.skills,
-        Gender: profileData.gender,
-        Summary: profileData.summary,
-        Experience: profileData.experience,
-        Projects: profileData.projects,
-        IsVerified: profileData.isVerified,
-        NicDocumentPath: profileData.nicDocumentPath
+        Projects: JSON.stringify(projects),
+        Certifications: JSON.stringify(certifications)
       });
 
       alert("Profile successfully updated!");
@@ -158,14 +190,12 @@ const AccountPreferences = () => {
       const res = await axios.post(`https://localhost:7118/api/Students/upload-nic/${userId}`, formData);
       setProfileData(prev => ({ ...prev, nicDocumentPath: res.data.path }));
       alert("Verification document uploaded!");
-    } catch (error) {
-      alert("Upload failed.");
-    }
+    } catch (error) { alert("Upload failed."); }
   };
 
   return (
     <div className="max-w-4xl p-6 mx-auto space-y-8">
-      {/* Header Section */}
+      {/* Header */}
       <div className="flex items-center justify-between pb-4 border-b">
         <h1 className="text-2xl font-bold text-gray-800">Account Preferences</h1>
         <button onClick={handleSaveAll} disabled={loading} className="flex items-center gap-2 px-6 py-2 text-white transition bg-blue-600 rounded-lg hover:bg-blue-700">
@@ -173,35 +203,22 @@ const AccountPreferences = () => {
         </button>
       </div>
 
-      {/* 1. Personal Information & Contacts */}
+      {/* 1. Personal & Social */}
       <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
         <div className="flex items-center gap-2 mb-2 font-semibold text-blue-600">
           <User size={20} /> <span>Personal Information & Contact Details</span>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">First Name</label>
-            <input name="firstName" value={profileData.firstName} onChange={handleInputChange} className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Last Name</label>
-            <input name="lastName" value={profileData.lastName} onChange={handleInputChange} className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-1 ml-1 text-xs font-semibold text-gray-500"><Phone size={12}/> Phone Number</label>
-            <input name="phone" value={profileData.phone} onChange={handleInputChange} placeholder="+94 7x xxx xxxx" className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Address / Location</label>
-            <input name="location" value={profileData.location} onChange={handleInputChange} className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-1 ml-1 text-xs font-semibold text-gray-500"><LinkIcon size={12}/> LinkedIn URL</label>
-            <input name="linkedin" value={profileData.linkedin} onChange={handleInputChange} placeholder="linkedin.com/in/username" className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="flex items-center gap-1 ml-1 text-xs font-semibold text-gray-500"><Code size={12}/> GitHub / Portfolio URL</label>
-            <input name="github" value={profileData.github} onChange={handleInputChange} placeholder="github.com/username" className="p-2 border rounded-md" />
+          <input name="firstName" value={profileData.firstName} onChange={handleInputChange} placeholder="First Name" className="p-2 border rounded-md" />
+          <input name="lastName" value={profileData.lastName} onChange={handleInputChange} placeholder="Last Name" className="p-2 border rounded-md" />
+          <input name="targetRole" value={profileData.targetRole} onChange={handleInputChange} placeholder="Target Job Role" className="p-2 border rounded-md" />
+          <input name="location" value={profileData.location} onChange={handleInputChange} placeholder="Location" className="p-2 border rounded-md" />
+          <input name="phone" value={profileData.phone} onChange={handleInputChange} placeholder="Phone Number" className="p-2 border rounded-md" />
+          <input name="linkedin" value={profileData.linkedin} onChange={handleInputChange} placeholder="LinkedIn URL" className="p-2 border rounded-md" />
+          <input name="github" value={profileData.github} onChange={handleInputChange} placeholder="GitHub URL" className="p-2 border rounded-md" />
+          <div className="grid grid-cols-2 gap-2">
+            <input name="portfolio" value={profileData.portfolio} onChange={handleInputChange} placeholder="Portfolio" className="p-2 border rounded-md" />
+            <input name="medium" value={profileData.medium} onChange={handleInputChange} placeholder="Medium" className="p-2 border rounded-md" />
           </div>
         </div>
       </section>
@@ -211,40 +228,25 @@ const AccountPreferences = () => {
         <div className="flex items-center gap-2 mb-2 font-semibold text-orange-600">
           <FileText size={20} /> <span>Professional Summary</span>
         </div>
-        <div className="flex flex-col gap-1">
-          <label className="ml-1 text-xs font-semibold text-gray-500">Briefly describe your career goals and expertise</label>
-          <textarea name="summary" value={profileData.summary} onChange={handleInputChange} rows="3" className="w-full p-2 border rounded-md" placeholder="e.g. Enthusiastic Full-stack Developer with a passion for building scalable web applications..." />
-        </div>
+        <textarea name="summary" value={profileData.summary} onChange={handleInputChange} rows="3" className="w-full p-2 border rounded-md" placeholder="Describe your career goals..." />
       </section>
 
-      {/* 3. Academic & Skills Details */}
+      {/* 3. Academic & Skills */}
       <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
         <div className="flex items-center gap-2 mb-2 font-semibold text-green-600">
           <GraduationCap size={20} /> <span>Academic & Professional Details</span>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">University / Institute</label>
-            <select name="university" value={profileData.university} onChange={handleInputChange} className="p-2 border rounded-md">
-              <option value="">Select University</option>
-              {universityList.map((uni, i) => <option key={i} value={uni}>{uni}</option>)}
-            </select>
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Degree Program</label>
-            <input name="degree" value={profileData.degree} onChange={handleInputChange} className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Current GPA</label>
-            <input name="gpa" value={profileData.gpa} onChange={handleInputChange} className="p-2 border rounded-md" />
-          </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Skills & Tech Stack</label>
-            <select onChange={handleSkillSelect} className="p-2 border rounded-md">
-              <option value="">Choose Skills...</option>
-              {techStackOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
-            </select>
-          </div>
+          <select name="university" value={profileData.university} onChange={handleInputChange} className="p-2 border rounded-md">
+            <option value="">Select University</option>
+            {universityList.map((uni, i) => <option key={i} value={uni}>{uni}</option>)}
+          </select>
+          <input name="degree" value={profileData.degree} onChange={handleInputChange} placeholder="Degree Program" className="p-2 border rounded-md" />
+          <select onChange={handleSkillSelect} className="p-2 border rounded-md">
+            <option value="">Choose Skills...</option>
+            {techStackOptions.map((opt, i) => <option key={i} value={opt}>{opt}</option>)}
+          </select>
+          <input name="languages" value={profileData.languages} onChange={handleInputChange} placeholder="Languages" className="p-2 border rounded-md" />
         </div>
         <div className="flex flex-wrap gap-2 mt-2">
           {profileData.skills && profileData.skills.split(',').map((skill, index) => (
@@ -258,26 +260,59 @@ const AccountPreferences = () => {
         </div>
       </section>
 
-      {/* 4. Experience & Projects */}
-      <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
-        <div className="flex items-center gap-2 mb-2 font-semibold text-red-600">
-          <Briefcase size={20} /> <span>Experience & Projects</span>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Work Experience / Internships</label>
-            <textarea name="experience" value={profileData.experience} onChange={handleInputChange} rows="4" className="w-full p-2 border rounded-md" placeholder="Role | Company | Duration&#10;- Key responsibility 1&#10;- Key responsibility 2" />
+      {/* 4. Projects Section */}
+      <section className="p-6 space-y-6 bg-white border shadow-sm rounded-xl">
+        <div className="flex items-center justify-between pb-2 border-b">
+          <div className="flex items-center gap-2 font-semibold text-red-600">
+            <Code size={20} /> <span>Projects & Portfolio</span>
           </div>
-          <div className="flex flex-col gap-1">
-            <label className="ml-1 text-xs font-semibold text-gray-500">Key Projects</label>
-            <textarea name="projects" value={profileData.projects} onChange={handleInputChange} rows="4" className="w-full p-2 border rounded-md" placeholder="Project Name | Tech Stack&#10;- Short description of what you built and achieved" />
-          </div>
+          <button onClick={addProject} className="flex items-center gap-1 px-3 py-1 text-sm text-red-600 transition rounded-md bg-red-50 hover:bg-red-100">
+            <Plus size={16} /> Add Project
+          </button>
         </div>
+        {projects.map((project, index) => (
+          <div key={index} className="relative p-4 space-y-3 border border-gray-100 rounded-lg bg-gray-50 group">
+            <button onClick={() => removeProject(index)} className="absolute text-gray-400 transition opacity-0 top-4 right-4 hover:text-red-500 group-hover:opacity-100">
+              <Trash2 size={18} />
+            </button>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+              <input placeholder="Project Name" value={project.name} onChange={(e) => handleProjectChange(index, 'name', e.target.value)} className="p-2 bg-white border rounded" />
+              <input placeholder="Tech Stack" value={project.techStack} onChange={(e) => handleProjectChange(index, 'techStack', e.target.value)} className="p-2 bg-white border rounded" />
+              <input placeholder="Live Link" value={project.liveLink} onChange={(e) => handleProjectChange(index, 'liveLink', e.target.value)} className="p-2 bg-white border rounded" />
+              <input placeholder="GitHub Link" value={project.githubLink} onChange={(e) => handleProjectChange(index, 'githubLink', e.target.value)} className="p-2 bg-white border rounded" />
+            </div>
+            <textarea placeholder="Description..." value={project.description} onChange={(e) => handleProjectChange(index, 'description', e.target.value)} rows="2" className="w-full p-2 bg-white border rounded" />
+          </div>
+        ))}
       </section>
 
-      {/* 5. Identity Verification */}
+      {/* 5. Multiple Certifications Section */}
+      <section className="p-6 space-y-6 bg-white border shadow-sm rounded-xl">
+        <div className="flex items-center justify-between pb-2 border-b">
+          <div className="flex items-center gap-2 font-semibold text-purple-600">
+            <Award size={20} /> <span>Certifications & Achievements</span>
+          </div>
+          <button onClick={addCert} className="flex items-center gap-1 px-3 py-1 text-sm text-purple-600 transition rounded-md bg-purple-50 hover:bg-purple-100">
+            <Plus size={16} /> Add Certificate
+          </button>
+        </div>
+        {certifications.map((cert, index) => (
+          <div key={index} className="relative p-4 space-y-3 border border-gray-100 rounded-lg bg-gray-50 group">
+            <button onClick={() => removeCert(index)} className="absolute text-gray-400 transition opacity-0 top-4 right-4 hover:text-red-500 group-hover:opacity-100">
+              <Trash2 size={18} />
+            </button>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
+              <input placeholder="Certificate Name" value={cert.title} onChange={(e) => handleCertChange(index, 'title', e.target.value)} className="p-2 bg-white border rounded md:col-span-1" />
+              <input placeholder="Issued By" value={cert.issuedBy} onChange={(e) => handleCertChange(index, 'issuedBy', e.target.value)} className="p-2 bg-white border rounded md:col-span-1" />
+              <input placeholder="Year" value={cert.year} onChange={(e) => handleCertChange(index, 'year', e.target.value)} className="p-2 bg-white border rounded md:col-span-1" />
+            </div>
+          </div>
+        ))}
+      </section>
+
+      {/* 6. Identity Verification */}
       <section className="p-6 space-y-4 bg-white border shadow-sm rounded-xl">
-        <div className="flex items-center gap-2 mb-2 font-semibold text-purple-600">
+        <div className="flex items-center gap-2 mb-2 font-semibold text-gray-600">
           <ShieldCheck size={20} /> <span>Identity Verification</span>
         </div>
         <div className="flex items-center justify-between p-4 border rounded-lg bg-gray-50">
@@ -285,7 +320,7 @@ const AccountPreferences = () => {
             <CheckCircle className={profileData.isVerified ? "text-green-500" : "text-gray-300"} />
             <div>
               <p className="text-sm font-medium">Official ID (NIC / Student ID)</p>
-              <p className="text-xs text-gray-500">{profileData.isVerified ? "Your identity is verified." : "Verification pending document upload."}</p>
+              <p className="text-xs text-gray-500">{profileData.isVerified ? "Verified." : "Pending upload."}</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
