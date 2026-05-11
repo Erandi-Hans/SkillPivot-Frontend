@@ -51,32 +51,33 @@ function App() {
         <Route path="/find-jobs" element={<FindJob />} />
         <Route path="/applications" element={<Manageapplication />} />
         <Route path="/accountPreferences" element={<AccountPreferences />} />
-        <Route path="/signsecurity" element={<Signsecurity/>} />
-        <Route path="/visibilitySettings" element={<VisibilitySettings/>} />
-        <Route path="/dataPrivacy" element={<DataPrivacy/>} />
+        <Route path="/signsecurity" element={<Signsecurity />} />
+        <Route path="/visibilitySettings" element={<VisibilitySettings />} />
+        <Route path="/dataPrivacy" element={<DataPrivacy />} />
 
         {/* Company Routes */}
-        <Route path="/company-dashboard" element={<Companydashbord/>} />
-        <Route path="/companyNavbar" element={<CompanyNavbar/>} />
-        <Route path="/companypostaJob/:id?" element={<CompanypostaJob/>} />
-        <Route path="/companymanagejobs" element={<Companymanagejobs/>}/>
-        <Route path="/companyapplication" element={<Companyapplication/>}/>
-        <Route path="/companyprofile" element={<Companyprofile/>}/>
+        <Route path="/company-dashboard" element={<Companydashbord />} />
+        <Route path="/companyNavbar" element={<CompanyNavbar />} />
+        <Route path="/companypostaJob/:id?" element={<CompanypostaJob />} />
+        <Route path="/companymanagejobs" element={<Companymanagejobs />} />
+        <Route path="/companyapplication" element={<Companyapplication />} />
+        <Route path="/companyprofile" element={<Companyprofile />} />
 
 
 
         {/* Admin Routes */}
-        <Route path="/admin-dashboard" element={<AdminDashboard/>} />
-        <Route path="/admin-navbar" element={<AdminNavbar/>} />
-        
+        <Route path="/admin-dashboard" element={<AdminDashboard />} />
+        <Route path="/admin-navbar" element={<AdminNavbar />} />
 
 
-        <Route path="/admin-users" element={<AdminUserManagement/>} />
-        <Route path="/admin-verifications" element={<Admincompanyverification/>} />
-        <Route path="/admin-jobs" element={<Adminjob/>} />
-        <Route path="/admin-settings" element={<Adminsystemsettings/>} />
-        
-        
+
+        <Route path="/admin-users" element={<AdminUserManagement />} />
+        <Route path="/admin-verifications" element={<Admincompanyverification />} />
+        <Route path="/admin-jobs" element={<Adminjob />} />
+        <Route path="/admin-settings" element={<Adminsystemsettings />} />
+
+        <Router />
+
       </Routes>
     </Router>
   );
